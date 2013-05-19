@@ -20,29 +20,33 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_PAGER_FLEX_FRAME_H
-#define INCLUDED_PAGER_FLEX_FRAME_H
+#ifndef INCLUDED_PAGER_FLEX_PARSE_H
+#define INCLUDED_PAGER_FLEX_PARSE_H
 
-#include <pager/api.h>
-#include <boost/shared_ptr.hpp>
+#include <gnuradio/pager/api.h>
+#include <gnuradio/sync_block.h>
+#include <gnuradio/msg_queue.h>
+#include <sstream>
 
 namespace gr {
   namespace pager {
-    
+
+#define FIELD_DELIM ((unsigned char)128)
+
     /*!
-     * \brief flex_frame.
+     * \brief flex parse description
      * \ingroup pager_blk
      */
-    class PAGER_API flex_frame
+    class PAGER_API flex_parse : virtual public sync_block
     {
     public:
-      // gr::pager::flex_frame::sptr
-      typedef boost::shared_ptr<flex_frame> sptr;
+      // gr::pager::flex_parse::sptr
+      typedef boost::shared_ptr<flex_parse> sptr;
 
-      static sptr make();
+      static sptr make(msg_queue::sptr queue, float freq);
     };
 
   } /* namespace pager */
 } /* namespace gr */
 
-#endif /* INCLUDED_PAGER_FLEX_FRAME_H */
+#endif /* INCLUDED_PAGER_FLEX_PARSE_H */

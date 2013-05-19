@@ -1,5 +1,6 @@
+/* -*- c++ -*- */
 /*
- * Copyright 2011 Free Software Foundation, Inc.
+ * Copyright 2006,2007,2012 Free Software Foundation, Inc.
  *
  * This file is part of GNU Radio
  *
@@ -19,15 +20,34 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_PAGER_API_H
-#define INCLUDED_PAGER_API_H
+#ifndef INCLUDED_PAGER_SLICER_FB_H
+#define INCLUDED_PAGER_SLICER_FB_H
 
-#include <attributes.h>
+#include <gnuradio/pager/api.h>
+#include <gnuradio/sync_block.h>
 
-#ifdef gnuradio_pager_EXPORTS
-#  define PAGER_API __GR_ATTR_EXPORT
-#else
-#  define PAGER_API __GR_ATTR_IMPORT
-#endif
+namespace gr {
+  namespace pager {
+    
+    /*!
+     * \brief slicer description
+     * \ingroup pager_blk
+     */
+    class PAGER_API slicer_fb : virtual public sync_block
+    {
+    public:
+      // gr::pager::slicer_fb::sptr
+      typedef boost::shared_ptr<slicer_fb> sptr;
 
-#endif /* INCLUDED_PAGER_API_H */
+      /*!
+       * \brief Make a pager slicer
+       */
+      static sptr make(float alpha);
+
+      virtual float dc_offset() const = 0;
+    };
+
+  } /* namespace pager */
+} /* namespace gr */
+
+#endif /* INCLUDED_PAGER_SLICER_FB_H */
