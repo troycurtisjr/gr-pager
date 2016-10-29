@@ -69,6 +69,8 @@ list(APPEND test_pager_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_pager.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_pager.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_flex_parse.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/flex_parse_impl.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/flex_modes.cc
 )
 
 add_executable(test-pager ${test_pager_sources})

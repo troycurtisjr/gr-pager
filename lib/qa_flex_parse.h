@@ -28,15 +28,28 @@
 namespace gr {
   namespace pager {
 
-    class qa_flex_parse : public CppUnit::TestCase
-    {
-    public:
-      CPPUNIT_TEST_SUITE(qa_flex_parse);
-      CPPUNIT_TEST(t1);
+    class qa_flex_parse_impl : public CppUnit::TestCase {
+
+      CPPUNIT_TEST_SUITE(qa_flex_parse_impl);
+      CPPUNIT_TEST(inactive_frame);
+      CPPUNIT_TEST(inactive_page);
+      CPPUNIT_TEST(simple_aln);
+      CPPUNIT_TEST(simple_standard_num);
+      CPPUNIT_TEST(simple_numbered_num);
+      CPPUNIT_TEST(simple_laddr_aln);
+      CPPUNIT_TEST(simple_laddr_num);
+      CPPUNIT_TEST(simple_laddr_saddr);
       CPPUNIT_TEST_SUITE_END();
 
     private:
-      void t1();
+      void inactive_frame();
+      void inactive_page();
+      void simple_aln();
+      void simple_standard_num();
+      void simple_numbered_num();
+      void simple_laddr_aln();
+      void simple_laddr_num();
+      void simple_laddr_saddr();
     };
 
   } /* namespace pager */
