@@ -32,7 +32,7 @@ CppUnit::TestSuite *
 qa_pager::suite()
 {
   CppUnit::TestSuite *s = new CppUnit::TestSuite("pager");
-  s->addTest(gr::pager::qa_flex_parse::suite());
+  s->addTest(gr::pager::qa_flex_parse_impl::suite());
 
   return s;
 }

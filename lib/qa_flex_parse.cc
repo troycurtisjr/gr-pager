@@ -25,6 +25,7 @@
 #include <gnuradio/blocks/message_sink.h>
 #include <cppunit/TestAssert.h>
 #include "qa_flex_parse.h"
+#include "flex_parse_impl.h"
 #include <pager/flex_parse.h>
 
 uint32_t inactive_frame_data[88] = {
@@ -450,7 +451,7 @@ namespace gr {
       }
     }
 
-    void qa_flex_parse::split_aln_two() {
+    void qa_flex_parse_impl::split_aln_two() {
       int i, j;
       gr::msg_queue::sptr q = gr::msg_queue::make(0);
       gr::pager::flex_parse_impl fp(q, frequency);
@@ -472,7 +473,7 @@ namespace gr {
       }
     }
 
-    void qa_flex_parse::split_aln_three() {
+    void qa_flex_parse_impl::split_aln_three() {
       int i, j;
 
       gr::msg_queue::sptr q = gr::msg_queue::make(0);
