@@ -23,7 +23,7 @@
 #ifndef INCLUDED_PAGER_FLEX_PARSE_H
 #define INCLUDED_PAGER_FLEX_PARSE_H
 
-#include <gnuradio/pager/api.h>
+#include <pager/api.h>
 #include <gnuradio/sync_block.h>
 #include <gnuradio/msg_queue.h>
 #include <sstream>

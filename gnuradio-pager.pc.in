@@ -1,7 +1,7 @@
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-libdir=@libdir@
-includedir=@includedir@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/@GR_LIBRARY_DIR@
+includedir=${prefix}/@GR_INCLUDE_DIR@
 
 Name: gnuradio-pager
 Description: GNU Radio blocks implementing a FLEX pager decoder

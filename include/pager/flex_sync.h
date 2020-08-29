@@ -1,5 +1,6 @@
+/* -*- c++ -*- */
 /*
- * Copyright 2011 Free Software Foundation, Inc.
+ * Copyright 2006 Free Software Foundation, Inc.
  *
  * This file is part of GNU Radio
  *
@@ -19,15 +20,30 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_PAGER_API_H
-#define INCLUDED_PAGER_API_H
+#ifndef INCLUDED_PAGER_FLEX_SYNC_H
+#define INCLUDED_PAGER_FLEX_SYNC_H
 
-#include <gnuradio/attributes.h>
+#include <pager/api.h>
+#include <gnuradio/block.h>
 
-#ifdef gnuradio_pager_EXPORTS
-#  define PAGER_API __GR_ATTR_EXPORT
-#else
-#  define PAGER_API __GR_ATTR_IMPORT
-#endif
+namespace gr {
+  namespace pager {
 
-#endif /* INCLUDED_PAGER_API_H */
+    /*!
+     * \brief flex sync description
+     * \ingroup pager_blk
+     */
+    class PAGER_API flex_sync : virtual public block
+    {
+    public:
+      // gr::pager::flex_sync::sptr
+      typedef boost::shared_ptr<flex_sync> sptr;
+
+      static sptr make();
+
+    };
+
+  } /* namespace pager */
+} /* namespace gr */
+
+#endif /* INCLUDED_PAGER_FLEX_SYNC_H */

@@ -24,7 +24,8 @@ from gnuradio import analog
 from gnuradio import blocks
 from gnuradio import filter
 from math import pi
-import pager_swig
+from pager import pager_swig
+
 
 class flex_demod(gr.hier_block2):
     """
@@ -36,31 +37,33 @@ class flex_demod(gr.hier_block2):
     """
 
     def __init__(self, queue, freq=0.0, verbose=False, log=False):
-	gr.hier_block2.__init__(self, "flex_demod",
-				gr.io_signature(1, 1, gr.sizeof_gr_complex),
-				gr.io_signature(0,0,0))
+        gr.hier_block2.__init__(self, "flex_demod",
+                                gr.io_signature(1, 1, gr.sizeof_gr_complex),
+                                gr.io_signature(0, 0, 0))
 
         k = 25000/(2*pi*1600)        # 4800 Hz max deviation
         quad = analog.quadrature_demod_cf(k)
-	self.connect(self, quad)
+        self.connect(self, quad)
 
         rsamp = filter.rational_resampler_fff(16, 25)
-        self.slicer = pager_swig.slicer_fb(5e-6) # DC removal averaging filter constant
-	self.sync = pager_swig.flex_sync()
+        # DC removal averaging filter constant
+        self.slicer = pager_swig.slicer_fb(5e-6)
+        self.sync = pager_swig.flex_sync()
 
         self.connect(quad, rsamp, self.slicer, self.sync)
 
-	for i in range(4):
-	    self.connect((self.sync, i), pager_swig.flex_deinterleave(), pager_swig.flex_parse(queue, freq))
+        for i in range(4):
+            self.connect((self.sync, i), pager_swig.flex_deinterleave(),
+                         pager_swig.flex_parse(queue, freq))
 
-	if log:
-	    suffix = '_'+ "%3.3f" % (freq/1e6,) + '.dat'
-	    quad_sink = blocks.file_sink(gr.sizeof_float, 'quad'+suffix)
-	    rsamp_sink = blocks.file_sink(gr.sizeof_float, 'rsamp'+suffix)
-	    slicer_sink = blocks.file_sink(gr.sizeof_char, 'slicer'+suffix)
-	    self.connect(rsamp, rsamp_sink)
-	    self.connect(quad, quad_sink)
-	    self.connect(self.slicer, slicer_sink)
+        if log:
+            suffix = '_' + "%3.3f" % (freq/1e6,) + '.dat'
+            quad_sink = blocks.file_sink(gr.sizeof_float, 'quad'+suffix)
+            rsamp_sink = blocks.file_sink(gr.sizeof_float, 'rsamp'+suffix)
+            slicer_sink = blocks.file_sink(gr.sizeof_char, 'slicer'+suffix)
+            self.connect(rsamp, rsamp_sink)
+            self.connect(quad, quad_sink)
+            self.connect(self.slicer, slicer_sink)
 
     def dc_offset(self):
-	return self.slicer.dc_offset()
+        return self.slicer.dc_offset()
