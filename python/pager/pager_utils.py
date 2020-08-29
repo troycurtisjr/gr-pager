@@ -18,10 +18,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+import threading
 from gnuradio import gr
-import gnuradio.gr.gr_threading as _threading
-from string import split, join, printable
-import time
+
 
 def make_trans_table():
     table = 256 * ['.']
@@ -38,9 +37,9 @@ def make_printable(s):
     return s.translate(_trans_table)
 
 
-class queue_runner(_threading.Thread):
+class queue_runner(threading.Thread):
     def __init__(self, msgq):
-        _threading.Thread.__init__(self)
+        threading.Thread.__init__(self)
         self.msgq = msgq
         self.done = False
         self.start()
@@ -51,9 +50,9 @@ class queue_runner(_threading.Thread):
             if msg.type() != 0:
                 break
 
-            page = join(split(msg.to_string(), chr(128)), '|')
+            page = b'|'.join(msg.to_string().split(b'\x80')).decode('utf8')
             s = make_printable(page)
-            print msg.type(), s
+            print("%s, %s" % (msg.type(), s))
 
     def end(self):
         self.msgq.insert_tail(gr.message(1))
