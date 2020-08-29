@@ -1,3 +1,14 @@
+== A Note on the Origins of this module == 
+
+This repo was initially created by filtering out the gr-pager directory from
+the upstream GNU Radio source code, starting at commit
+f1f49ff9b18d5e4ebbee4ddd279244f562672e0f which was the last commit before
+gr-pager was removed. I did this to help preserve all the contributions made by
+individuals over the years, and not give the impression that this module was
+primary created by me.
+
+== Original README follows ==
+
 This GNU Radio component implements a FLEX radiopager receiver/demodulator.
 
 FLEX pager towers are between 929 MHz and 932 MHz at 25 KHz centers.
