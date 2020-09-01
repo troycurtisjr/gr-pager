@@ -23,7 +23,6 @@
 ########################################################################
 install(FILES
     api.h
-    flex_frame.h
     slicer_fb.h
     flex_deinterleave.h
     flex_parse.h
