@@ -25,10 +25,11 @@ include(GrPlatform) #define LIB_SUFFIX
 
 list(APPEND pager_sources
   flex_deinterleave_impl.cc
-  flex_frame_impl.cc
   flex_parse_impl.cc
   flex_sync_impl.cc
+  flex_decode_impl.cc
   slicer_fb_impl.cc
+  flex_frame.cc
   bch3221.cc
   flex_modes.cc
   util.cc

@@ -30,9 +30,6 @@
 
 namespace gr {
   namespace pager {
-
-#define FIELD_DELIM ((unsigned char)128)
-
     /*!
      * \brief flex parse description
      * \ingroup pager_blk

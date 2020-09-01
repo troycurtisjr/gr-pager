@@ -28,5 +28,6 @@ install(FILES
     flex_deinterleave.h
     flex_parse.h
     flex_sync.h
+    flex_decode.h
     DESTINATION include/pager
 )

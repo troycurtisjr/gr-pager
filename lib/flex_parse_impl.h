@@ -27,33 +27,22 @@
 #include <gnuradio/sync_block.h>
 #include <gnuradio/msg_queue.h>
 #include "flex_modes.h"
+#include "flex_frame.h"
 #include <sstream>
 
 namespace gr {
   namespace pager {
 
-#define FIELD_DELIM ((unsigned char)128)
-
     class flex_parse_impl : public flex_parse
     {
     private:
-      std::ostringstream d_payload;
+      float d_freq;
+      flex_frame d_frame;
       msg_queue::sptr d_queue;		  // Destination for decoded pages
 
-      int d_count;	                  // Count of received codewords
+      std::ostringstream d_payload;
       int d_datawords[88];                // 11 blocks of 8 32-bit words
-
-      page_type_t d_type;	  	  // Current page type
-      int d_capcode;	                  // Current page destination address
-      bool d_laddr;	                  // Current page has long address
-      float d_freq;			  // Channel frequency
-
-      void parse_data();	    	  // Handle a frame's worth of data
-      void parse_capcode(int32_t aw1, int32_t aw2);
-      void parse_alphanumeric(int mw1, int mw2, int j);
-      void parse_numeric(int mw1, int mw2, int j);
-      void parse_tone_only();
-      void parse_unknown(int mw1, int mw2);
+      int d_count;                        // Count of received codewords
 
     public:
       flex_parse_impl(msg_queue::sptr queue, float freq);

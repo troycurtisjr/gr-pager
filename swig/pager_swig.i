@@ -13,6 +13,7 @@
 #include "pager/flex_sync.h"
 #include "pager/flex_deinterleave.h"
 #include "pager/flex_parse.h"
+#include "pager/flex_decode.h"
 %}
 
 %include "pager/flex_frame.h"
@@ -26,3 +27,5 @@ GR_SWIG_BLOCK_MAGIC2(pager, slicer_fb);
 GR_SWIG_BLOCK_MAGIC2(pager, flex_sync);
 GR_SWIG_BLOCK_MAGIC2(pager, flex_deinterleave);
 GR_SWIG_BLOCK_MAGIC2(pager, flex_parse);
+%include "pager/flex_decode.h"
+GR_SWIG_BLOCK_MAGIC2(pager, flex_decode);
