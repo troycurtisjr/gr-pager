@@ -35,17 +35,13 @@ namespace gr {
     class PAGER_API flex_decode : virtual public gr::sync_block
     {
      public:
+      // gr::pager::flex_decode::sptr
       typedef boost::shared_ptr<flex_decode> sptr;
 
       /*!
        * \brief Return a shared_ptr to a new instance of pager::flex_decode.
-       *
-       * To avoid accidental use of raw pointers, pager::flex_decode's
-       * constructor is in a private implementation
-       * class. pager::flex_decode::make is the public interface for
-       * creating new instances.
        */
-      static sptr make();
+      static sptr make(float freq);
     };
 
   } // namespace pager

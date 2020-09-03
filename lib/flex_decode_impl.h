@@ -22,6 +22,7 @@
 #define INCLUDED_PAGER_FLEX_DECODE_IMPL_H
 
 #include <pager/flex_decode.h>
+#include "flex_frame.h"
 
 namespace gr {
   namespace pager {
@@ -29,10 +30,16 @@ namespace gr {
     class flex_decode_impl : public flex_decode
     {
      private:
-      // Nothing to declare in this block.
+       float d_freq;
+       flex_frame d_frame;
+
+       std::ostringstream d_payload;
+       int d_datawords[88]; // 11 blocks of 8 32-bit words
+       int d_count;         // Count of received codewords
+       pmt::pmt_t d_outport;
 
      public:
-      flex_decode_impl();
+      flex_decode_impl(float freq);
       ~flex_decode_impl();
 
       // Where all the action really happens
