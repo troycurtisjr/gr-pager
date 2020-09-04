@@ -34,10 +34,10 @@ import sys
 import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
-from gnuradio import uhd
-import time
 from gnuradio.qtgui import Range, RangeWidget
 import os, math
+import osmosdr
+import time
 import pager
 try:
     import configparser
@@ -192,19 +192,21 @@ class rtlsdr_rx_flex(gr.top_block, Qt.QWidget):
             self.tabwidget_grid_layout_0.setRowStretch(r, 1)
         for c in range(2, 3):
             self.tabwidget_grid_layout_0.setColumnStretch(c, 1)
-        self.uhd_usrp_source_0 = uhd.usrp_source(
-            ",".join(("", "")),
-            uhd.stream_args(
-                cpu_format="fc32",
-                args='',
-                channels=list(range(0,1)),
-            ),
+        self.rtlsdr_source_0 = osmosdr.source(
+            args="numchan=" + str(1) + " " + ""
         )
-        self.uhd_usrp_source_0.set_center_freq(band_freq, 0)
-        self.uhd_usrp_source_0.set_gain(rx_gain, 0)
-        self.uhd_usrp_source_0.set_antenna('RX2', 0)
-        self.uhd_usrp_source_0.set_samp_rate(sample_rate)
-        self.uhd_usrp_source_0.set_time_unknown_pps(uhd.time_spec())
+        self.rtlsdr_source_0.set_time_unknown_pps(osmosdr.time_spec_t())
+        self.rtlsdr_source_0.set_sample_rate(sample_rate)
+        self.rtlsdr_source_0.set_center_freq(band_freq, 0)
+        self.rtlsdr_source_0.set_freq_corr(0, 0)
+        self.rtlsdr_source_0.set_dc_offset_mode(0, 0)
+        self.rtlsdr_source_0.set_iq_balance_mode(0, 0)
+        self.rtlsdr_source_0.set_gain_mode(False, 0)
+        self.rtlsdr_source_0.set_gain(rx_gain, 0)
+        self.rtlsdr_source_0.set_if_gain(20, 0)
+        self.rtlsdr_source_0.set_bb_gain(20, 0)
+        self.rtlsdr_source_0.set_antenna('', 0)
+        self.rtlsdr_source_0.set_bandwidth(0, 0)
         self.rational_resampler_xxx_0 = filter.rational_resampler_fff(
                 interpolation=bb_interp,
                 decimation=bb_decim,
@@ -485,9 +487,9 @@ class rtlsdr_rx_flex(gr.top_block, Qt.QWidget):
         self.connect((self.pager_slicer_fb_0, 0), (self.pager_flex_sync_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.pager_slicer_fb_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_time_sink_x_0, 0))
-        self.connect((self.uhd_usrp_source_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
-        self.connect((self.uhd_usrp_source_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.uhd_usrp_source_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.qtgui_freq_sink_x_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
 
 
     def closeEvent(self, event):
@@ -578,7 +580,7 @@ class rtlsdr_rx_flex(gr.top_block, Qt.QWidget):
         self.set_channel_taps(firdes.low_pass(10, self.sample_rate, self.passband/2.0, (self.channel_rate-self.passband)/2.0))
         self.qtgui_freq_sink_x_0.set_frequency_range(self.band_freq, self.sample_rate)
         self.qtgui_waterfall_sink_x_0.set_frequency_range(self.band_freq, self.sample_rate)
-        self.uhd_usrp_source_0.set_samp_rate(self.sample_rate)
+        self.rtlsdr_source_0.set_sample_rate(self.sample_rate)
 
     def get_passband(self):
         return self.passband
@@ -627,7 +629,7 @@ class rtlsdr_rx_flex(gr.top_block, Qt.QWidget):
         self.freq_xlating_fir_filter_xxx_0.set_center_freq((self.freq-self.band_freq)+self.offset)
         self.qtgui_freq_sink_x_0.set_frequency_range(self.band_freq, self.sample_rate)
         self.qtgui_waterfall_sink_x_0.set_frequency_range(self.band_freq, self.sample_rate)
-        self.uhd_usrp_source_0.set_center_freq(self.band_freq, 0)
+        self.rtlsdr_source_0.set_center_freq(self.band_freq, 0)
 
     def get_saved_rx_gain(self):
         return self.saved_rx_gain
@@ -650,6 +652,10 @@ class rtlsdr_rx_flex(gr.top_block, Qt.QWidget):
         self.freq = freq
         self.set_variable_qtgui_label_0(self._variable_qtgui_label_0_formatter(self.freq))
         self.freq_xlating_fir_filter_xxx_0.set_center_freq((self.freq-self.band_freq)+self.offset)
+        self.pager_flex_decode_0.set_freq(self.freq)
+        self.pager_flex_decode_0_0.set_freq(self.freq)
+        self.pager_flex_decode_0_0_0.set_freq(self.freq)
+        self.pager_flex_decode_0_0_0_0.set_freq(self.freq)
         self.qtgui_freq_sink_x_1.set_frequency_range(self.freq, self.channel_rate)
 
     def get_channel_taps(self):
@@ -678,7 +684,7 @@ class rtlsdr_rx_flex(gr.top_block, Qt.QWidget):
         	self._saved_rx_gain_config.add_section('gr-pager')
         self._saved_rx_gain_config.set('gr-pager', 'rx_gain', str(self.rx_gain))
         self._saved_rx_gain_config.write(open(self.config_filename, 'w'))
-        self.uhd_usrp_source_0.set_gain(self.rx_gain, 0)
+        self.rtlsdr_source_0.set_gain(self.rx_gain, 0)
 
     def get_offset(self):
         return self.offset
