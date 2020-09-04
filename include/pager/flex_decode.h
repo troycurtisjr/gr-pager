@@ -42,6 +42,9 @@ public:
      * \brief Return a shared_ptr to a new instance of pager::flex_decode.
      */
     static sptr make(float freq);
+
+    virtual void set_freq(float freq) = 0;
+    virtual float get_freq() const = 0;
 };
 
 } // namespace pager

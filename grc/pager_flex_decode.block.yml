@@ -1,10 +1,12 @@
 id: pager_flex_decode
-label: flex_decode
-category: '[pager]'
+label: Flex Decoder
+category: '[Pager]'
 
 templates:
   imports: import pager
   make: pager.flex_decode(${freq})
+  callbacks:
+  - set_freq(${freq})
 
 #  Make one 'parameters' list entry for every parameter you want settable from the GUI.
 #     Keys include:

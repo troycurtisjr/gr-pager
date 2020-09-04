@@ -97,5 +97,9 @@ int flex_decode_impl::work(int noutput_items,
     return i;
 }
 
+void flex_decode_impl::set_freq(float freq) { d_freq = freq; }
+
+float flex_decode_impl::get_freq() const { return d_freq; }
+
 } /* namespace pager */
 } /* namespace gr */
