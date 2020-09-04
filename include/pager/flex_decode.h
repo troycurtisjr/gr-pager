@@ -21,31 +21,30 @@
 #ifndef INCLUDED_PAGER_FLEX_DECODE_H
 #define INCLUDED_PAGER_FLEX_DECODE_H
 
-#include <pager/api.h>
 #include <gnuradio/sync_block.h>
+#include <pager/api.h>
 
 namespace gr {
-  namespace pager {
+namespace pager {
+
+/*!
+ * \brief Decodes a stream of codes into messages.
+ * \ingroup pager
+ *
+ */
+class PAGER_API flex_decode : virtual public gr::sync_block
+{
+public:
+    // gr::pager::flex_decode::sptr
+    typedef boost::shared_ptr<flex_decode> sptr;
 
     /*!
-     * \brief Decodes a stream of codes into messages.
-     * \ingroup pager
-     *
+     * \brief Return a shared_ptr to a new instance of pager::flex_decode.
      */
-    class PAGER_API flex_decode : virtual public gr::sync_block
-    {
-     public:
-      // gr::pager::flex_decode::sptr
-      typedef boost::shared_ptr<flex_decode> sptr;
+    static sptr make(float freq);
+};
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of pager::flex_decode.
-       */
-      static sptr make(float freq);
-    };
-
-  } // namespace pager
+} // namespace pager
 } // namespace gr
 
 #endif /* INCLUDED_PAGER_FLEX_DECODE_H */
-

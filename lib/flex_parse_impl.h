@@ -23,37 +23,37 @@
 #ifndef INCLUDED_PAGER_FLEX_PARSE_IMPL_H
 #define INCLUDED_PAGER_FLEX_PARSE_IMPL_H
 
-#include <pager/flex_parse.h>
-#include <gnuradio/sync_block.h>
-#include <gnuradio/msg_queue.h>
-#include "flex_modes.h"
 #include "flex_frame.h"
+#include "flex_modes.h"
+#include <gnuradio/msg_queue.h>
+#include <gnuradio/sync_block.h>
+#include <pager/flex_parse.h>
 #include <sstream>
 
 namespace gr {
-  namespace pager {
+namespace pager {
 
-    class flex_parse_impl : public flex_parse
-    {
-    private:
-      float d_freq;
-      flex_frame d_frame;
-      msg_queue::sptr d_queue;		  // Destination for decoded pages
+class flex_parse_impl : public flex_parse
+{
+private:
+    float d_freq;
+    flex_frame d_frame;
+    msg_queue::sptr d_queue; // Destination for decoded pages
 
-      std::ostringstream d_payload;
-      int d_datawords[88];                // 11 blocks of 8 32-bit words
-      int d_count;                        // Count of received codewords
+    std::ostringstream d_payload;
+    int d_datawords[88]; // 11 blocks of 8 32-bit words
+    int d_count;         // Count of received codewords
 
-    public:
-      flex_parse_impl(msg_queue::sptr queue, float freq);
-      ~flex_parse_impl();
+public:
+    flex_parse_impl(msg_queue::sptr queue, float freq);
+    ~flex_parse_impl();
 
-      int work(int noutput_items,
-	       gr_vector_const_void_star &input_items,
-	       gr_vector_void_star &output_items);
-    };
+    int work(int noutput_items,
+             gr_vector_const_void_star& input_items,
+             gr_vector_void_star& output_items);
+};
 
-  } /* namespace pager */
+} /* namespace pager */
 } /* namespace gr */
 
 #endif /* INCLUDED_PAGER_FLEX_PARSE_IMPL_H */

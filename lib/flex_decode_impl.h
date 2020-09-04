@@ -21,37 +21,34 @@
 #ifndef INCLUDED_PAGER_FLEX_DECODE_IMPL_H
 #define INCLUDED_PAGER_FLEX_DECODE_IMPL_H
 
-#include <pager/flex_decode.h>
 #include "flex_frame.h"
+#include <pager/flex_decode.h>
 
 namespace gr {
-  namespace pager {
+namespace pager {
 
-    class flex_decode_impl : public flex_decode
-    {
-     private:
-       float d_freq;
-       flex_frame d_frame;
+class flex_decode_impl : public flex_decode
+{
+private:
+    float d_freq;
+    flex_frame d_frame;
 
-       std::ostringstream d_payload;
-       int d_datawords[88]; // 11 blocks of 8 32-bit words
-       int d_count;         // Count of received codewords
-       pmt::pmt_t d_outport;
+    std::ostringstream d_payload;
+    int d_datawords[88]; // 11 blocks of 8 32-bit words
+    int d_count;         // Count of received codewords
+    pmt::pmt_t d_outport;
 
-     public:
-      flex_decode_impl(float freq);
-      ~flex_decode_impl();
+public:
+    flex_decode_impl(float freq);
+    ~flex_decode_impl();
 
-      // Where all the action really happens
-      int work(
-              int noutput_items,
-              gr_vector_const_void_star &input_items,
-              gr_vector_void_star &output_items
-      );
-    };
+    // Where all the action really happens
+    int work(int noutput_items,
+             gr_vector_const_void_star& input_items,
+             gr_vector_void_star& output_items);
+};
 
-  } // namespace pager
+} // namespace pager
 } // namespace gr
 
 #endif /* INCLUDED_PAGER_FLEX_DECODE_IMPL_H */
-

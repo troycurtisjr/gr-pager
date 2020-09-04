@@ -28,50 +28,49 @@
 #include <vector>
 
 namespace gr {
-  namespace pager {
-    /* Simple data container for a single page. */
-    class flex_page
-    {
-      public:
-        static const char FIELD_DELIM = 128;
+namespace pager {
+/* Simple data container for a single page. */
+class flex_page
+{
+public:
+    static const char FIELD_DELIM = 128;
 
-        flex_page();
+    flex_page();
 
-        float freq;
-        page_type_t type;
-        int capcode;
-        bool laddr;
-        int data_len;
-        char data[84*3]; // Probably overkill, but definitely safe.
-    };
-    std::ostream &operator<<(std::ostream &out, const flex_page &page);
+    float freq;
+    page_type_t type;
+    int capcode;
+    bool laddr;
+    int data_len;
+    char data[84 * 3]; // Probably overkill, but definitely safe.
+};
+std::ostream& operator<<(std::ostream& out, const flex_page& page);
 
-    class flex_frame
-    {
-    private:
-      std::vector<flex_page> d_pages;
+class flex_frame
+{
+private:
+    std::vector<flex_page> d_pages;
 
-      int parse_capcode(int *laddr, int32_t aw1, int32_t aw2);
-      void parse_alphanumeric(flex_page *page, const int32_t *frame, int mw1,
-                              int mw2, int j);
-      void parse_numeric(flex_page *page, const int32_t *frame, int mw1,
-                         int mw2, int j);
-      void parse_tone_only();
-      void parse_unknown(flex_page *page, const int32_t *frame, int mw1,
-                         int mw2);
+    int parse_capcode(int* laddr, int32_t aw1, int32_t aw2);
+    void
+    parse_alphanumeric(flex_page* page, const int32_t* frame, int mw1, int mw2, int j);
+    void parse_numeric(flex_page* page, const int32_t* frame, int mw1, int mw2, int j);
+    void parse_tone_only();
+    void parse_unknown(flex_page* page, const int32_t* frame, int mw1, int mw2);
 
-    public:
-      static const int FRAME_WORDS = 88;
+public:
+    static const int FRAME_WORDS = 88;
 
-      flex_frame();
-      ~flex_frame();
-      /*
-       * Handle a frame's worth of data which can produce zero or more pages.
-       */
-      const std::vector<flex_page> &parse(const float freq, const int32_t *frame, const int size);
-    };
+    flex_frame();
+    ~flex_frame();
+    /*
+     * Handle a frame's worth of data which can produce zero or more pages.
+     */
+    const std::vector<flex_page>&
+    parse(const float freq, const int32_t* frame, const int size);
+};
 
-  } /* namespace pager */
+} /* namespace pager */
 } /* namespace gr */
 
 

@@ -23,29 +23,29 @@
 #ifndef INCLUDED_PAGER_FLEX_DEINTERLEAVE_H
 #define INCLUDED_PAGER_FLEX_DEINTERLEAVE_H
 
-#include <pager/api.h>
 #include <gnuradio/sync_decimator.h>
+#include <pager/api.h>
 
 namespace gr {
-  namespace pager {
+namespace pager {
+
+/*!
+ * \brief flex deinterleave description
+ * \ingroup pager_blk
+ */
+class PAGER_API flex_deinterleave : virtual public sync_decimator
+{
+public:
+    // gr::pager::flex_deinterleave::sptr
+    typedef boost::shared_ptr<flex_deinterleave> sptr;
 
     /*!
-     * \brief flex deinterleave description
-     * \ingroup pager_blk
+     * \brief Make flex deinterleaver
      */
-    class PAGER_API flex_deinterleave : virtual public sync_decimator
-    {
-    public:
-      // gr::pager::flex_deinterleave::sptr
-      typedef boost::shared_ptr<flex_deinterleave> sptr;
+    static sptr make();
+};
 
-      /*!
-       * \brief Make flex deinterleaver
-       */
-      static sptr make();
-    };
-
-  } /* namespace pager */
+} /* namespace pager */
 } /* namespace gr */
 
 #endif /* INCLUDED_PAGER_FLEX_DEINTERLEAVE_H */
