@@ -208,8 +208,8 @@ class rtlsdr_rx_flex(gr.top_block, Qt.QWidget):
         self.rtlsdr_source_0.set_antenna('', 0)
         self.rtlsdr_source_0.set_bandwidth(0, 0)
         self.rational_resampler_xxx_0 = filter.rational_resampler_fff(
-                interpolation=bb_decim,
-                decimation=bb_interp,
+                interpolation=bb_interp,
+                decimation=bb_decim,
                 taps=[1.0/ma_ntaps,]*ma_ntaps*bb_interp,
                 fractional_bw=None)
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
@@ -440,12 +440,16 @@ class rtlsdr_rx_flex(gr.top_block, Qt.QWidget):
             self.tabwidget_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 5):
             self.tabwidget_grid_layout_0.setColumnStretch(c, 1)
-        self.pager_slicer_fb_0 = pager.slicer_fb(1e-6)
+        self.pager_slicer_fb_0 = pager.slicer_fb(5e-6)
         self.pager_flex_sync_0 = pager.flex_sync()
         self.pager_flex_deinterleave_0_1_0 = pager.flex_deinterleave()
         self.pager_flex_deinterleave_0_1 = pager.flex_deinterleave()
         self.pager_flex_deinterleave_0_0 = pager.flex_deinterleave()
         self.pager_flex_deinterleave_0 = pager.flex_deinterleave()
+        self.pager_flex_decode_0_0_0_0 = pager.flex_decode(freq)
+        self.pager_flex_decode_0_0_0 = pager.flex_decode(freq)
+        self.pager_flex_decode_0_0 = pager.flex_decode(freq)
+        self.pager_flex_decode_0 = pager.flex_decode(freq)
         self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(channel_decim, channel_taps, (freq-band_freq)+offset, sample_rate)
         self.fm_demod = analog.quadrature_demod_cf(demod_k)
         self._channel_range = Range(1, 120, 1, saved_channel, 200)
@@ -455,10 +459,7 @@ class rtlsdr_rx_flex(gr.top_block, Qt.QWidget):
             self.tabwidget_grid_layout_0.setRowStretch(r, 1)
         for c in range(1, 2):
             self.tabwidget_grid_layout_0.setColumnStretch(c, 1)
-        self.blocks_null_sink_0_2 = blocks.null_sink(gr.sizeof_int*1)
-        self.blocks_null_sink_0_1 = blocks.null_sink(gr.sizeof_int*1)
-        self.blocks_null_sink_0_0 = blocks.null_sink(gr.sizeof_int*1)
-        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_int*1)
+        self.blocks_message_debug_0 = blocks.message_debug()
         self.blocks_char_to_float_0 = blocks.char_to_float(1, 1)
 
 
@@ -466,14 +467,18 @@ class rtlsdr_rx_flex(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
+        self.msg_connect((self.pager_flex_decode_0, 'pages'), (self.blocks_message_debug_0, 'print'))
+        self.msg_connect((self.pager_flex_decode_0_0, 'pages'), (self.blocks_message_debug_0, 'print'))
+        self.msg_connect((self.pager_flex_decode_0_0_0, 'pages'), (self.blocks_message_debug_0, 'print'))
+        self.msg_connect((self.pager_flex_decode_0_0_0_0, 'pages'), (self.blocks_message_debug_0, 'print'))
         self.connect((self.blocks_char_to_float_0, 0), (self.qtgui_time_sink_x_1, 0))
         self.connect((self.fm_demod, 0), (self.rational_resampler_xxx_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.fm_demod, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_freq_sink_x_1, 0))
-        self.connect((self.pager_flex_deinterleave_0, 0), (self.blocks_null_sink_0, 0))
-        self.connect((self.pager_flex_deinterleave_0_0, 0), (self.blocks_null_sink_0_2, 0))
-        self.connect((self.pager_flex_deinterleave_0_1, 0), (self.blocks_null_sink_0_1, 0))
-        self.connect((self.pager_flex_deinterleave_0_1_0, 0), (self.blocks_null_sink_0_0, 0))
+        self.connect((self.pager_flex_deinterleave_0, 0), (self.pager_flex_decode_0, 0))
+        self.connect((self.pager_flex_deinterleave_0_0, 0), (self.pager_flex_decode_0_0_0_0, 0))
+        self.connect((self.pager_flex_deinterleave_0_1, 0), (self.pager_flex_decode_0_0_0, 0))
+        self.connect((self.pager_flex_deinterleave_0_1_0, 0), (self.pager_flex_decode_0_0, 0))
         self.connect((self.pager_flex_sync_0, 0), (self.pager_flex_deinterleave_0, 0))
         self.connect((self.pager_flex_sync_0, 3), (self.pager_flex_deinterleave_0_0, 0))
         self.connect((self.pager_flex_sync_0, 2), (self.pager_flex_deinterleave_0_1, 0))
@@ -647,6 +652,10 @@ class rtlsdr_rx_flex(gr.top_block, Qt.QWidget):
         self.freq = freq
         self.set_variable_qtgui_label_0(self._variable_qtgui_label_0_formatter(self.freq))
         self.freq_xlating_fir_filter_xxx_0.set_center_freq((self.freq-self.band_freq)+self.offset)
+        self.pager_flex_decode_0.set_freq(self.freq)
+        self.pager_flex_decode_0_0.set_freq(self.freq)
+        self.pager_flex_decode_0_0_0.set_freq(self.freq)
+        self.pager_flex_decode_0_0_0_0.set_freq(self.freq)
         self.qtgui_freq_sink_x_1.set_frequency_range(self.freq, self.channel_rate)
 
     def get_channel_taps(self):

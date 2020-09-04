@@ -415,74 +415,19 @@ blocks:
     coordinate: [336, 1084.0]
     rotation: 180
     state: enabled
-- name: blocks_null_sink_0
-  id: blocks_null_sink
+- name: blocks_message_debug_0
+  id: blocks_message_debug
   parameters:
     affinity: ''
     alias: ''
-    bus_structure_sink: '[[0,],]'
     comment: ''
-    num_inputs: '1'
-    type: int
-    vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1042, 1116]
+    coordinate: [1288, 1200.0]
     rotation: 0
-    state: enabled
-- name: blocks_null_sink_0_0
-  id: blocks_null_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    bus_structure_sink: '[[0,],]'
-    comment: ''
-    num_inputs: '1'
-    type: int
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1042, 1168]
-    rotation: 0
-    state: enabled
-- name: blocks_null_sink_0_1
-  id: blocks_null_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    bus_structure_sink: '[[0,],]'
-    comment: ''
-    num_inputs: '1'
-    type: int
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1041, 1225]
-    rotation: 0
-    state: enabled
-- name: blocks_null_sink_0_2
-  id: blocks_null_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    bus_structure_sink: '[[0,],]'
-    comment: ''
-    num_inputs: '1'
-    type: int
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1040, 1273]
-    rotation: 0
-    state: enabled
+    state: true
 - name: fm_demod
   id: analog_quadrature_demod_cf
   parameters:
@@ -532,6 +477,70 @@ blocks:
     coordinate: [8, 108.0]
     rotation: 0
     state: enabled
+- name: pager_flex_decode_0
+  id: pager_flex_decode
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    freq: freq
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [992, 1100.0]
+    rotation: 0
+    state: true
+- name: pager_flex_decode_0_0
+  id: pager_flex_decode
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    freq: freq
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [992, 1156.0]
+    rotation: 0
+    state: true
+- name: pager_flex_decode_0_0_0
+  id: pager_flex_decode
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    freq: freq
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [992, 1212.0]
+    rotation: 0
+    state: true
+- name: pager_flex_decode_0_0_0_0
+  id: pager_flex_decode
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    freq: freq
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [992, 1268.0]
+    rotation: 0
+    state: true
 - name: pager_flex_deinterleave_0
   id: pager_flex_deinterleave
   parameters:
@@ -544,7 +553,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [777, 1116]
+    coordinate: [776, 1104.0]
     rotation: 0
     state: enabled
 - name: pager_flex_deinterleave_0_0
@@ -559,7 +568,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [776, 1273]
+    coordinate: [776, 1272.0]
     rotation: 0
     state: enabled
 - name: pager_flex_deinterleave_0_1
@@ -574,7 +583,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [776, 1225]
+    coordinate: [776, 1216.0]
     rotation: 0
     state: enabled
 - name: pager_flex_deinterleave_0_1_0
@@ -589,7 +598,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [778, 1168]
+    coordinate: [776, 1160.0]
     rotation: 0
     state: enabled
 - name: pager_flex_sync_0
@@ -612,7 +621,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    alpha: 1e-6
+    alpha: 5e-6
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -974,7 +983,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [64, 1060.0]
+    coordinate: [56, 1060.0]
     rotation: 180
     state: true
 - name: qtgui_waterfall_sink_x_0
@@ -1044,9 +1053,9 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    decim: bb_interp
+    decim: bb_decim
     fbw: '0'
-    interp: bb_decim
+    interp: bb_interp
     maxoutbuf: '0'
     minoutbuf: '0'
     taps: '[1.0/ma_ntaps,]*ma_ntaps*bb_interp'
@@ -1481,10 +1490,14 @@ connections:
 - [fm_demod, '0', rational_resampler_xxx_0, '0']
 - [freq_xlating_fir_filter_xxx_0, '0', fm_demod, '0']
 - [freq_xlating_fir_filter_xxx_0, '0', qtgui_freq_sink_x_1, '0']
-- [pager_flex_deinterleave_0, '0', blocks_null_sink_0, '0']
-- [pager_flex_deinterleave_0_0, '0', blocks_null_sink_0_2, '0']
-- [pager_flex_deinterleave_0_1, '0', blocks_null_sink_0_1, '0']
-- [pager_flex_deinterleave_0_1_0, '0', blocks_null_sink_0_0, '0']
+- [pager_flex_decode_0, pages, blocks_message_debug_0, print]
+- [pager_flex_decode_0_0, pages, blocks_message_debug_0, print]
+- [pager_flex_decode_0_0_0, pages, blocks_message_debug_0, print]
+- [pager_flex_decode_0_0_0_0, pages, blocks_message_debug_0, print]
+- [pager_flex_deinterleave_0, '0', pager_flex_decode_0, '0']
+- [pager_flex_deinterleave_0_0, '0', pager_flex_decode_0_0_0_0, '0']
+- [pager_flex_deinterleave_0_1, '0', pager_flex_decode_0_0_0, '0']
+- [pager_flex_deinterleave_0_1_0, '0', pager_flex_decode_0_0, '0']
 - [pager_flex_sync_0, '0', pager_flex_deinterleave_0, '0']
 - [pager_flex_sync_0, '1', pager_flex_deinterleave_0_1_0, '0']
 - [pager_flex_sync_0, '2', pager_flex_deinterleave_0_1, '0']
