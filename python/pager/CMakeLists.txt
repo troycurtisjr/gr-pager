@@ -28,6 +28,7 @@ GR_PYTHON_INSTALL(
     __init__.py
     pager_utils.py
     flex_demod.py
+    flex_receiver.py
     DESTINATION ${GR_PYTHON_DIR}/pager
     COMPONENT "pager_python"
 )

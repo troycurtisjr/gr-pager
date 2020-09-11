@@ -19,11 +19,10 @@
 # Boston, MA 02110-1301, USA.
 #
 
-from gnuradio import gr, gr_unittest
-from gnuradio import blocks
-import pager_swig as pager
+from gnuradio import gr, gr_unittest, blocks, analog
+from flex_receiver import flex_receiver
 
-class qa_flex_decode(gr_unittest.TestCase):
+class qa_flex_receiver(gr_unittest.TestCase):
 
     def setUp(self):
         self.tb = gr.top_block()
@@ -31,11 +30,20 @@ class qa_flex_decode(gr_unittest.TestCase):
     def tearDown(self):
         self.tb = None
 
-    def test_001_t(self):
+    def test_with_noise(self):
         # set up fg
+        noise = analog.fastnoise_source_c(analog.GR_GAUSSIAN, 1, 0, 8192)
+        head = blocks.head(gr.sizeof_gr_complex*1, 2048)
+        rcvr = flex_receiver(0, 50e3)
+        msgsink = blocks.message_debug()
+        self.tb.connect((noise, 0), (head, 0))
+        self.tb.connect((head, 0), (rcvr, 0))
+        self.tb.msg_connect((rcvr, 'pages'), (msgsink, 'store'))
         self.tb.run()
-        # check data
+        # No data is expected to be output, this merely tests that a noise source won't crash any
+        # of the pieces which are knit together with the flex_receiver heir block.
+        self.assertEqual(0, msgsink.num_messages())
 
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_flex_decode)
+    gr_unittest.run(qa_flex_receiver)
