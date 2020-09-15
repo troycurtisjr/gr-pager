@@ -31,8 +31,11 @@ class flex_demod(gr.hier_block2):
     """
     FLEX pager protocol demodulation block.
 
-    This block demodulates a band-limited, complex down-converted baseband
-    channel into FLEX protocol frames.
+    This block demodulates a band-limited, complex down-converted baseband channel into FLEX
+    protocol frames which are output on the given message queue.
+
+    Message queues are deprecated in GNU Radio, take a look at flex_receiver instead, which uses
+    the preferred message ports functionality.
 
     """
 
