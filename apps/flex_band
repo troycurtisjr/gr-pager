@@ -20,6 +20,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
+from datetime import datetime
 import argparse
 import logging
 import sys
@@ -27,7 +28,10 @@ import sys
 from gnuradio import gr, filter, blocks
 from gnuradio.eng_arg import eng_float
 
-import osmosdr
+try:
+    import osmosdr
+except ImportError:
+    osmosdr = None
 
 import pager
 
@@ -41,6 +45,12 @@ class FlexBandApp(gr.top_block):
     def __init__(self, args):
         gr.top_block.__init__(self, "FlexBandApp")
 
+        self.time_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.nb_log_files = []
+
+        ##
+        ## Setup Input Source Blocks
+        ##
         if args.input_type == "file":
             src = self.setup_file_input(args)
         elif args.input_type == "rtlsdr":
@@ -51,25 +61,64 @@ class FlexBandApp(gr.top_block):
 
         self.message_debug = blocks.message_debug()
 
-        # Setup the channelizer
-        src_rate_hz, adj_chan = self.chan_to_bandwidth_hz(args.nchan)
-        self.pfb_channelizer = filter.pfb.channelizer_ccf(adj_chan)
-        # TODO: Set the channel map appropriately
-        self.connect((src, 0), (self.pfb_channelizer, 0))
+        ##
+        ## Setup Source to Channel Blocks
+        ##
+        src_rate_hz = self.chan_to_bandwidth_hz(args.nchan)
+        # Either use the input source directly (for single channel) or setup channelizer.
+        if args.nchan == 1:
+            self.channel_src = src
+        else:
+            # Setup the channelizer
+            self.pfb_channelizer = filter.pfb.channelizer_ccf(args.nchan)
+            self.connect((src, 0), (self.pfb_channelizer, 0))
+            self.channel_src = self.pfb_channelizer
 
-        lower_freq_hz = args.freq - (adj_chan/2 * CHANNEL_SPACING_HZ)
-        channel_rate_hz = src_rate_hz / adj_chan
+        if args.log_wb:
+            if args.input_type == "file":
+                logger.warning(
+                    "Refusing to log wide-band data for file input, since it's redundant."
+                )
+            else:
+                self.wb_log_file = blocks.file_sink(
+                    gr.sizeof_gr_complex, self.gen_filename(args.freq, src_rate_hz)
+                )
+                self.connect((src, 0), (self.wb_log_file, 0))
+                logger.info("Logging Wideband data to %s", self.wb_log_file.filename)
+
+        ##
+        ## Setup Narrowband Channel blocks.
+        ##
+        channel_rate_hz = src_rate_hz / args.nchan
         self.receivers = []
-        for i in range(adj_chan):
-            self.receivers.append(pager.flex_receiver(lower_freq_hz + i * CHANNEL_SPACING_HZ, channel_rate_hz))
-            self.connect((self.pfb_channelizer, i), (self.receivers[i], 0))
-            self.msg_connect((self.receivers[i], 'pages'), (self.message_debug, 'print'))
+        for i in range(args.nchan):
+            if i <= args.nchan / 2:
+                chan_freq_hz = args.freq + i * CHANNEL_SPACING_HZ
+            else:
+                chan_freq_hz = args.freq + (i - args.nchan) * CHANNEL_SPACING_HZ
+            self.receivers.append(pager.flex_receiver(chan_freq_hz, channel_rate_hz))
+            self.connect((self.channel_src, i), (self.receivers[i], 0))
+            self.msg_connect(
+                (self.receivers[i], "pages"), (self.message_debug, "print")
+            )
+            if args.log_nb:
+                self.nb_log_files.append(
+                    blocks.file_sink(
+                        gr.sizeof_gr_complex,
+                        self.gen_filename(chan_freq_hz, channel_rate_hz),
+                    )
+                )
+                self.connect((self.channel_src, i), (self.nb_log_files[i], 0))
+
+    def gen_filename(self, freq_hz, samplerate):
+        """Generates a filename for logging based on current time and frequency/samplerate"""
+        return "flex_%s_%d_%d_fc.raw" % (self.time_str, int(freq_hz), int(samplerate))
 
     def setup_file_input(self, args):
         logger.info(
             "Reading input from file %(filename)s @ %(sample_rate)sHz", vars(args)
         )
-        req_bw_hz, _ = self.chan_to_bandwidth_hz(args.nchan)
+        req_bw_hz = self.chan_to_bandwidth_hz(args.nchan)
         if args.sample_rate < req_bw_hz:
             logger.error(
                 "%s Hz bandwidth is required to support %d 25kHz channels, %s Hz input file is not enough. Please reduce the channel count.",
@@ -80,14 +129,14 @@ class FlexBandApp(gr.top_block):
             sys.exit(1)
 
         self.file_input = blocks.file_source(
-            gr.sizeof_gr_complex * 1, args.input_file, False, 0, 0
+            gr.sizeof_gr_complex * 1, args.filename, False, 0, 0
         )
 
         if args.sample_rate != req_bw_hz:
             logger.warning(
-                "Resampling input file from %s Hz to %s Hz, supply a file at the proper samplerate to eliminate wideband resampling.",
+                "Resampling input file from %s Hz to %s Hz, supply a file at the proper samplerate (nchans * 25kHz) to eliminate wideband resampling.",
                 args.sample_rate,
-                req_bw_Hz,
+                req_bw_hz,
             )
             self.arb_resamp = filter.pfb.arb_resampler_ccf(
                 float(req_bw_hz) / args.sample_rate
@@ -98,8 +147,12 @@ class FlexBandApp(gr.top_block):
         return self.file_input
 
     def setup_rtlsdr_input(self, args):
+        if not osmosdr:
+            logger.error("Failed to import module osmosdr, cannot read from RTL SDR")
+            sys.exit(1)
+
         logger.info("Reading input from RTL SDR Dongle at %.3fMHz", args.freq / 1e6)
-        req_bw_hz, _ = self.chan_to_bandwidth_hz(args.nchan)
+        req_bw_hz = self.chan_to_bandwidth_hz(args.nchan)
         if req_bw_hz > MAX_RTLSDR_BW_HZ:
             logger.error(
                 "%s 25kHz channels requires %s Hz of bandwidth which is more than the max supported bandwidth of %s for the RTL SDR dongle. Please reduce the channel count.",
@@ -109,13 +162,16 @@ class FlexBandApp(gr.top_block):
             )
             sys.exit(1)
 
-        self.rtlsdr_source = osmosdr.source(
-            args="numchan=1 "
+        self.rtlsdr_source = osmosdr.source(args="numchan=1 ")
+        rtlsdr_sample_rate_hz = self.find_rtlsdr_sample_rate(
+            self.rtlsdr_source, req_bw_hz
         )
-        rtlsdr_sample_rate_hz = self.find_rtlsdr_sample_rate(self.rtlsdr_source, req_bw_hz)
 
         if not rtlsdr_sample_rate_hz:
-            logger.error("Failed to find a supported RTL SDR sample rate to provide at least %s Hz bandwidth.", req_bw_hz)
+            logger.error(
+                "Failed to find a supported RTL SDR sample rate to provide at least %s Hz bandwidth.",
+                req_bw_hz,
+            )
             sys.exit(1)
 
         self.rtlsdr_source.set_time_unknown_pps(osmosdr.time_spec_t())
@@ -162,8 +218,7 @@ class FlexBandApp(gr.top_block):
         return None
 
     def chan_to_bandwidth_hz(self, nchans):
-        adj_channels = nchans
-        return adj_channels * CHANNEL_SPACING_HZ, adj_channels
+        return nchans * CHANNEL_SPACING_HZ
 
 
 if __name__ == "__main__":
@@ -172,11 +227,18 @@ if __name__ == "__main__":
     )
     parser.add_argument("--verbose", "-v", action="store_true", default=False)
     parser.add_argument(
-        "--log",
-        "-l",
+        "--log-wb",
+        "-W",
         action="store_true",
         default=False,
-        help="log flowgraph data to files, producing a lot of data",
+        help="log wideband data to a file.",
+    )
+    parser.add_argument(
+        "--log-nb",
+        "-N",
+        action="store_true",
+        default=False,
+        help="log narrow-band baseband channel data to a file.",
     )
     parser.add_argument(
         "--freq",
