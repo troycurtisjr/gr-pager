@@ -21,6 +21,8 @@
 #
 
 from datetime import datetime
+from math import gcd
+from fractions import Fraction
 import argparse
 import logging
 import sys
@@ -39,6 +41,10 @@ logger = logging.getLogger("flex_band")
 
 CHANNEL_SPACING_HZ = 25000
 MAX_RTLSDR_BW_HZ = 2400000
+
+# Nod to https://stackoverflow.com/questions/51716916/built-in-module-to-calculate-least-common-multiple
+def lcm(a, b):
+    return abs(a * b) // gcd(a, b)
 
 
 class FlexBandApp(gr.top_block):
@@ -114,6 +120,62 @@ class FlexBandApp(gr.top_block):
         """Generates a filename for logging based on current time and frequency/samplerate"""
         return "flex_%s_%d_%d_fc.raw" % (self.time_str, int(freq_hz), int(samplerate))
 
+    def setup_resampler(self, in_rate_hz, out_rate_hz):
+        interp_rate_hz = lcm(in_rate_hz, out_rate_hz)
+        # Use Fraction() to reduce fraction automatically
+        resamp_frac = Fraction(interp_rate_hz // in_rate_hz, interp_rate_hz // out_rate_hz)
+
+        # Now for some basic heuristics. For the moment these are just guesses. Perhaps some real
+        # bench-marking will eventually be done to try to do better. Custom tweaked values will always
+        # be better, but this aims to generally try to get "close enough".
+
+        resamp_float = float(resamp_frac)
+
+        # Assume the rational resampler will be used
+        use_arb = False
+        # For values very close to one, use the arbitrary resamp
+        if abs(1 - resamp_float) < 0.001:
+            logger.debug(
+                "Resampler ratio, %s, is very close to 1. Using arbitrary resampler.",
+                resamp_float,
+            )
+            use_arb = True
+
+        # Set the filter size that would be used for the arbitrary filter
+        arb_interp = 32
+
+        # The arbitrary resampler runs 2 filters per sample, plus a little interpolating, so
+        # any interpolation over 2 * arb_interp starts to eat into the benefit of using the rational resampler.
+        # There is also quality/accuracy/transistion-width/ripple to consider as the generated filters will
+        # have different trade offs. For now, just assume that interpolating any more than 3 * arb_interp isn't
+        # worth it.
+        if resamp_frac.numerator > 3 * arb_interp:
+            logger.debug(
+                "Resampler interpolation, %s, is more than 3 * %s, using arbitrary resampler.",
+                resamp_frac.numerator,
+                arb_interp,
+            )
+            use_arb = True
+
+        if use_arb:
+            # This method isn't expected to be used for net gain in sample rate, but it would
+            # *mostly* work. However, this filter can't interpolate by more than arb_interp amount.
+            if out_rate_hz / in_rate_hz > arb_interp:
+                raise ValueError(
+                    f"Output Rate {out_rate_hz} is more than {arb_interp} x the Input Rate {in_rate_hz}, can't use with this resampler."
+                )
+            logger.debug("Using arbitrary resampler with ratio %s.", resamp_float)
+            return filter.pfb.arb_resampler_ccf(resamp_float, flt_size=arb_interp)
+
+        logger.debug(
+            "Using rational resampler with interp %s / decim %s.",
+            resamp_frac.numerator,
+            resamp_frac.denominator,
+        )
+        return filter.rational_resampler.rational_resampler_ccf(
+            resamp_frac.numerator, resamp_frac.denominator
+        )
+
     def setup_file_input(self, args):
         logger.info(
             "Reading input from file %(filename)s @ %(sample_rate)sHz", vars(args)
@@ -138,11 +200,9 @@ class FlexBandApp(gr.top_block):
                 args.sample_rate,
                 req_bw_hz,
             )
-            self.arb_resamp = filter.pfb.arb_resampler_ccf(
-                float(req_bw_hz) / args.sample_rate
-            )
-            self.connect((self.file_input, 0), (self.arb_resamp, 0))
-            return self.arb_resamp
+            self.resamp = self.setup_resampler(args.sample_rate, req_bw_hz)
+            self.connect((self.file_input, 0), (self.resamp, 0))
+            return self.resamp
 
         return self.file_input
 
@@ -193,11 +253,9 @@ class FlexBandApp(gr.top_block):
                 rtlsdr_sample_rate_hz,
                 req_bw_hz,
             )
-            self.arb_resamp = filter.pfb.arb_resampler_ccf(
-                float(req_bw_hz) / rtlsdr_sample_rate_hz
-            )
-            self.connect((self.rtlsdr_source, 0), (self.arb_resamp, 0))
-            return self.arb_resamp
+            self.resamp = self.setup_resampler(rtlsdr_sample_rate_hz, req_bw_hz)
+            self.connect((self.rtlsdr_source, 0), (self.resamp, 0))
+            return self.resamp
 
         return self.rtlsdr_source
 
