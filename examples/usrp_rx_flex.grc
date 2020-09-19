@@ -10,7 +10,7 @@ options:
     gen_linking: dynamic
     generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: rtlsdr_rx_flex
+    id: usrp_rx_flex
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -21,7 +21,7 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: RTLSDR FLEX Pager Receiver (Single Channel)
+    title: USRP FLEX Pager Receiver (Single Channel)
     window_size: 4095,4095
   states:
     bus_sink: false
@@ -68,31 +68,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1048, 12.0]
-    rotation: 0
-    state: enabled
-- name: bb_decim
-  id: variable
-  parameters:
-    comment: ''
-    value: '8'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1008, 860.0]
-    rotation: 0
-    state: enabled
-- name: bb_interp
-  id: variable
-  parameters:
-    comment: ''
-    value: '5'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [920, 860.0]
+    coordinate: [1032, 12.0]
     rotation: 0
     state: enabled
 - name: channel
@@ -125,7 +101,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [936, 12.0]
+    coordinate: [920, 12.0]
     rotation: 0
     state: enabled
 - name: channel_rate
@@ -137,7 +113,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [824, 12.0]
+    coordinate: [816, 12.0]
     rotation: 0
     state: enabled
 - name: channel_taps
@@ -173,19 +149,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [352, 12.0]
-    rotation: 0
-    state: enabled
-- name: demod_k
-  id: variable
-  parameters:
-    comment: ''
-    value: 3*channel_rate/(2*math.pi*deviation)
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [600, 860.0]
+    coordinate: [344, 12.0]
     rotation: 0
     state: enabled
 - name: deviation
@@ -197,7 +161,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [736, 12.0]
+    coordinate: [728, 12.0]
     rotation: 0
     state: enabled
 - name: freq
@@ -209,19 +173,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [528, 12.0]
-    rotation: 0
-    state: enabled
-- name: ma_ntaps
-  id: variable
-  parameters:
-    comment: ''
-    value: int(channel_rate/symbol_rate)
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [832, 860.0]
+    coordinate: [520, 12.0]
     rotation: 0
     state: enabled
 - name: nchan_taps
@@ -299,7 +251,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [424, 12.0]
+    coordinate: [416, 12.0]
     rotation: 0
     state: enabled
 - name: saved_band_freq
@@ -379,7 +331,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [632, 12.0]
+    coordinate: [624, 12.0]
     rotation: 0
     state: enabled
 - name: variable_qtgui_label_0
@@ -412,8 +364,8 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [336, 1084.0]
-    rotation: 180
+    coordinate: [912, 852.0]
+    rotation: 0
     state: enabled
 - name: blocks_message_debug_0
   id: blocks_message_debug
@@ -425,25 +377,26 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1288, 1200.0]
+    coordinate: [1064, 504.0]
     rotation: 0
     state: true
-- name: fm_demod
-  id: analog_quadrature_demod_cf
+- name: flex_pager_receiver_0
+  id: flex_pager_receiver
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    gain: demod_k
+    frequency: freq
     maxoutbuf: '0'
     minoutbuf: '0'
+    sample_rate: channel_rate
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [599, 774]
+    coordinate: [600, 648.0]
     rotation: 0
-    state: enabled
+    state: true
 - name: freq_xlating_fir_filter_xxx_0
   id: freq_xlating_fir_filter_xxx
   parameters:
@@ -475,161 +428,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [8, 108.0]
-    rotation: 0
-    state: enabled
-- name: pager_flex_decode_0
-  id: pager_flex_decode
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    freq: freq
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [992, 1100.0]
-    rotation: 0
-    state: true
-- name: pager_flex_decode_0_0
-  id: pager_flex_decode
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    freq: freq
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [992, 1156.0]
-    rotation: 0
-    state: true
-- name: pager_flex_decode_0_0_0
-  id: pager_flex_decode
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    freq: freq
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [992, 1212.0]
-    rotation: 0
-    state: true
-- name: pager_flex_decode_0_0_0_0
-  id: pager_flex_decode
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    freq: freq
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [992, 1268.0]
-    rotation: 0
-    state: true
-- name: pager_flex_deinterleave_0
-  id: pager_flex_deinterleave
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [776, 1104.0]
-    rotation: 0
-    state: enabled
-- name: pager_flex_deinterleave_0_0
-  id: pager_flex_deinterleave
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [776, 1272.0]
-    rotation: 0
-    state: enabled
-- name: pager_flex_deinterleave_0_1
-  id: pager_flex_deinterleave
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [776, 1216.0]
-    rotation: 0
-    state: enabled
-- name: pager_flex_deinterleave_0_1_0
-  id: pager_flex_deinterleave
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [776, 1160.0]
-    rotation: 0
-    state: enabled
-- name: pager_flex_sync_0
-  id: pager_flex_sync
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [528, 1144.0]
-    rotation: 0
-    state: enabled
-- name: pager_slicer_fb_0
-  id: pager_slicer_fb
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha: 5e-6
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [304, 1188.0]
     rotation: 0
     state: enabled
 - name: qtgui_freq_sink_x_0
@@ -730,7 +528,7 @@ blocks:
     autoscale: 'False'
     average: '0.2'
     axislabels: 'True'
-    bw: channel_rate
+    bw: baseband_rate
     color1: '"blue"'
     color10: '"dark blue"'
     color2: '"red"'
@@ -789,7 +587,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [592, 584.0]
+    coordinate: [1064, 616.0]
     rotation: 0
     state: true
 - name: qtgui_time_sink_x_0
@@ -886,7 +684,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1072, 628.0]
+    coordinate: [1064, 724.0]
     rotation: 0
     state: true
 - name: qtgui_time_sink_x_1
@@ -983,8 +781,8 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [56, 1060.0]
-    rotation: 180
+    coordinate: [1064, 828.0]
+    rotation: 0
     state: true
 - name: qtgui_waterfall_sink_x_0
   id: qtgui_waterfall_sink_x
@@ -1047,26 +845,6 @@ blocks:
     coordinate: [320, 512.0]
     rotation: 0
     state: true
-- name: rational_resampler_xxx_0
-  id: rational_resampler_xxx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    decim: bb_decim
-    fbw: '0'
-    interp: bb_interp
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    taps: '[1.0/ma_ntaps,]*ma_ntaps*bb_interp'
-    type: fff
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [831, 750]
-    rotation: 0
-    state: enabled
 - name: tabwidget
   id: qtgui_tab_widget
   parameters:
@@ -1472,58 +1250,17 @@ blocks:
     coordinate: [24, 628.0]
     rotation: 0
     state: true
-- name: virtual_sink_0
-  id: virtual_sink
-  parameters:
-    alias: ''
-    comment: ''
-    stream_id: baseband
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1100, 774]
-    rotation: 0
-    state: enabled
-- name: virtual_source_0
-  id: virtual_source
-  parameters:
-    alias: ''
-    comment: ''
-    stream_id: baseband
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [80, 1188.0]
-    rotation: 0
-    state: enabled
 
 connections:
 - [blocks_char_to_float_0, '0', qtgui_time_sink_x_1, '0']
-- [fm_demod, '0', rational_resampler_xxx_0, '0']
-- [freq_xlating_fir_filter_xxx_0, '0', fm_demod, '0']
-- [freq_xlating_fir_filter_xxx_0, '0', qtgui_freq_sink_x_1, '0']
-- [pager_flex_decode_0, pages, blocks_message_debug_0, print]
-- [pager_flex_decode_0_0, pages, blocks_message_debug_0, print]
-- [pager_flex_decode_0_0_0, pages, blocks_message_debug_0, print]
-- [pager_flex_decode_0_0_0_0, pages, blocks_message_debug_0, print]
-- [pager_flex_deinterleave_0, '0', pager_flex_decode_0, '0']
-- [pager_flex_deinterleave_0_0, '0', pager_flex_decode_0_0_0_0, '0']
-- [pager_flex_deinterleave_0_1, '0', pager_flex_decode_0_0_0, '0']
-- [pager_flex_deinterleave_0_1_0, '0', pager_flex_decode_0_0, '0']
-- [pager_flex_sync_0, '0', pager_flex_deinterleave_0, '0']
-- [pager_flex_sync_0, '1', pager_flex_deinterleave_0_1_0, '0']
-- [pager_flex_sync_0, '2', pager_flex_deinterleave_0_1, '0']
-- [pager_flex_sync_0, '3', pager_flex_deinterleave_0_0, '0']
-- [pager_slicer_fb_0, '0', blocks_char_to_float_0, '0']
-- [pager_slicer_fb_0, '0', pager_flex_sync_0, '0']
-- [rational_resampler_xxx_0, '0', qtgui_time_sink_x_0, '0']
-- [rational_resampler_xxx_0, '0', virtual_sink_0, '0']
+- [flex_pager_receiver_0, '0', qtgui_freq_sink_x_1, '0']
+- [flex_pager_receiver_0, '1', qtgui_time_sink_x_0, '0']
+- [flex_pager_receiver_0, '2', blocks_char_to_float_0, '0']
+- [flex_pager_receiver_0, pages, blocks_message_debug_0, print]
+- [freq_xlating_fir_filter_xxx_0, '0', flex_pager_receiver_0, '0']
 - [uhd_usrp_source_0, '0', freq_xlating_fir_filter_xxx_0, '0']
 - [uhd_usrp_source_0, '0', qtgui_freq_sink_x_0, '0']
 - [uhd_usrp_source_0, '0', qtgui_waterfall_sink_x_0, '0']
-- [virtual_source_0, '0', pager_slicer_fb_0, '0']
 
 metadata:
   file_format: 1

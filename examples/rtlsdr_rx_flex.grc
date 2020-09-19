@@ -68,7 +68,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1048, 12.0]
+    coordinate: [1032, 12.0]
     rotation: 0
     state: enabled
 - name: channel
@@ -101,7 +101,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [936, 12.0]
+    coordinate: [920, 12.0]
     rotation: 0
     state: enabled
 - name: channel_rate
@@ -113,7 +113,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [824, 12.0]
+    coordinate: [816, 12.0]
     rotation: 0
     state: enabled
 - name: channel_taps
@@ -149,7 +149,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [352, 12.0]
+    coordinate: [344, 12.0]
     rotation: 0
     state: enabled
 - name: deviation
@@ -161,7 +161,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [736, 12.0]
+    coordinate: [728, 12.0]
     rotation: 0
     state: enabled
 - name: freq
@@ -173,7 +173,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [528, 12.0]
+    coordinate: [520, 12.0]
     rotation: 0
     state: enabled
 - name: nchan_taps
@@ -251,7 +251,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [424, 12.0]
+    coordinate: [416, 12.0]
     rotation: 0
     state: enabled
 - name: saved_band_freq
@@ -331,7 +331,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [632, 12.0]
+    coordinate: [624, 12.0]
     rotation: 0
     state: enabled
 - name: variable_qtgui_label_0
@@ -1199,7 +1199,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [24, 596.0]
+    coordinate: [16, 596.0]
     rotation: 0
     state: true
 - name: tabwidget
