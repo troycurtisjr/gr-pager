@@ -344,5 +344,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
 
+    if not args.input_type:
+        parser.print_usage()
+        sys.exit(1)
+
     app = FlexBandApp(args)
     app.run()
