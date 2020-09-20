@@ -1,0 +1,49 @@
+id: flex_pager_receiver
+label: FLEX Pager Receiver
+category: '[Pager]'
+
+parameters:
+-   id: frequency
+    label: Center Frequency
+    dtype: real
+    default: '0'
+    hide: none
+-   id: sample_rate
+    label: Input Sample Rate
+    dtype: int
+    default: '50000'
+    hide: none
+
+inputs:
+-   label: baseband_input
+    dtype: complex
+    vlen: 1
+
+outputs:
+-   label: pages
+    domain: message
+    dtype: message
+-   label: filtered_baseband
+    dtype: complex
+    vlen: 1
+    optional: true
+-   label: fm_demod
+    dtype: float
+    vlen: 1
+    optional: true
+-   label: dibits
+    dtype: byte
+    vlen: 1
+    optional: true
+
+asserts:
+  - ${ sample_rate > 16000 }
+
+templates:
+    imports: 'import pager'
+    make: "pager.flex_receiver(\n    frequency=${ frequency },\n    sample_rate=${ sample_rate },\n)"
+    callbacks:
+    - set_frequency(${ frequency })
+    - set_sample_rate(${ sample_rate })
+
+file_format: 1

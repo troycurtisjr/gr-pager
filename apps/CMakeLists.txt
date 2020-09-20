@@ -22,6 +22,7 @@ include(GrPython)
 
 GR_PYTHON_INSTALL(
     PROGRAMS
+    flex_band
     usrp_flex
     usrp_flex_all
     usrp_flex_band

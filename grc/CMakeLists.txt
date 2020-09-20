@@ -23,5 +23,7 @@ install(
     pager_flex_deinterleave.block.yml
     pager_flex_sync.block.yml
     pager_slicer_fb.block.yml
-    pager_flex_decode.block.yml DESTINATION share/gnuradio/grc/blocks
+    pager_flex_decode.block.yml
+    pager_flex_receiver.block.yml
+    DESTINATION share/gnuradio/grc/blocks
 )

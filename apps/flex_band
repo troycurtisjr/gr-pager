@@ -1,0 +1,352 @@
+#!/usr/bin/env python
+#
+# Copyright 2020 Troy Curtis, Jr.
+#
+# This file is part of gr-pager
+#
+# GNU Radio is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Radio is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Radio; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street,
+# Boston, MA 02110-1301, USA.
+#
+
+from datetime import datetime
+from math import gcd
+from fractions import Fraction
+import argparse
+import logging
+import sys
+
+from gnuradio import gr, filter, blocks
+from gnuradio.eng_arg import eng_float
+
+try:
+    import osmosdr
+except ImportError:
+    osmosdr = None
+
+import pager
+
+logger = logging.getLogger("flex_band")
+
+CHANNEL_SPACING_HZ = 25000
+MAX_RTLSDR_BW_HZ = 2400000
+
+# Nod to https://stackoverflow.com/questions/51716916/built-in-module-to-calculate-least-common-multiple
+def lcm(a, b):
+    return abs(a * b) // gcd(a, b)
+
+
+class FlexBandApp(gr.top_block):
+    def __init__(self, args):
+        gr.top_block.__init__(self, "FlexBandApp")
+
+        self.time_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.nb_log_files = []
+
+        ##
+        ## Setup Input Source Blocks
+        ##
+        if args.input_type == "file":
+            src = self.setup_file_input(args)
+        elif args.input_type == "rtlsdr":
+            src = self.setup_rtlsdr_input(args)
+        else:
+            logger.error("Unknown input type %s", args.input_type)
+            sys.exit(1)
+
+        self.message_debug = blocks.message_debug()
+
+        ##
+        ## Setup Source to Channel Blocks
+        ##
+        src_rate_hz = self.chan_to_bandwidth_hz(args.nchan)
+        # Either use the input source directly (for single channel) or setup channelizer.
+        if args.nchan == 1:
+            self.channel_src = src
+        else:
+            # Setup the channelizer
+            self.pfb_channelizer = filter.pfb.channelizer_ccf(args.nchan)
+            self.connect((src, 0), (self.pfb_channelizer, 0))
+            self.channel_src = self.pfb_channelizer
+
+        if args.log_wb:
+            if args.input_type == "file":
+                logger.warning(
+                    "Refusing to log wide-band data for file input, since it's redundant."
+                )
+            else:
+                self.wb_log_file = blocks.file_sink(
+                    gr.sizeof_gr_complex, self.gen_filename(args.freq, src_rate_hz)
+                )
+                self.connect((src, 0), (self.wb_log_file, 0))
+                logger.info("Logging Wideband data to %s", self.wb_log_file.filename)
+
+        ##
+        ## Setup Narrowband Channel blocks.
+        ##
+        channel_rate_hz = src_rate_hz / args.nchan
+        self.receivers = []
+        for i in range(args.nchan):
+            if i <= args.nchan / 2:
+                chan_freq_hz = args.freq + i * CHANNEL_SPACING_HZ
+            else:
+                chan_freq_hz = args.freq + (i - args.nchan) * CHANNEL_SPACING_HZ
+            self.receivers.append(pager.flex_receiver(chan_freq_hz, channel_rate_hz))
+            self.connect((self.channel_src, i), (self.receivers[i], 0))
+            self.msg_connect(
+                (self.receivers[i], "pages"), (self.message_debug, "print")
+            )
+            if args.log_nb:
+                self.nb_log_files.append(
+                    blocks.file_sink(
+                        gr.sizeof_gr_complex,
+                        self.gen_filename(chan_freq_hz, channel_rate_hz),
+                    )
+                )
+                self.connect((self.channel_src, i), (self.nb_log_files[i], 0))
+
+    def gen_filename(self, freq_hz, samplerate):
+        """Generates a filename for logging based on current time and frequency/samplerate"""
+        return "flex_%s_%d_%d_fc.raw" % (self.time_str, int(freq_hz), int(samplerate))
+
+    def setup_resampler(self, in_rate_hz, out_rate_hz):
+        interp_rate_hz = lcm(in_rate_hz, out_rate_hz)
+        # Use Fraction() to reduce fraction automatically
+        resamp_frac = Fraction(interp_rate_hz // in_rate_hz, interp_rate_hz // out_rate_hz)
+
+        # Now for some basic heuristics. For the moment these are just guesses. Perhaps some real
+        # bench-marking will eventually be done to try to do better. Custom tweaked values will always
+        # be better, but this aims to generally try to get "close enough".
+
+        resamp_float = float(resamp_frac)
+
+        # Assume the rational resampler will be used
+        use_arb = False
+        # For values very close to one, use the arbitrary resamp
+        if abs(1 - resamp_float) < 0.001:
+            logger.debug(
+                "Resampler ratio, %s, is very close to 1. Using arbitrary resampler.",
+                resamp_float,
+            )
+            use_arb = True
+
+        # Set the filter size that would be used for the arbitrary filter
+        arb_interp = 32
+
+        # The arbitrary resampler runs 2 filters per sample, plus a little interpolating, so
+        # any interpolation over 2 * arb_interp starts to eat into the benefit of using the rational resampler.
+        # There is also quality/accuracy/transistion-width/ripple to consider as the generated filters will
+        # have different trade offs. For now, just assume that interpolating any more than 3 * arb_interp isn't
+        # worth it.
+        if resamp_frac.numerator > 3 * arb_interp:
+            logger.debug(
+                "Resampler interpolation, %s, is more than 3 * %s, using arbitrary resampler.",
+                resamp_frac.numerator,
+                arb_interp,
+            )
+            use_arb = True
+
+        if use_arb:
+            # This method isn't expected to be used for net gain in sample rate, but it would
+            # *mostly* work. However, this filter can't interpolate by more than arb_interp amount.
+            if out_rate_hz / in_rate_hz > arb_interp:
+                raise ValueError(
+                    f"Output Rate {out_rate_hz} is more than {arb_interp} x the Input Rate {in_rate_hz}, can't use with this resampler."
+                )
+            logger.debug("Using arbitrary resampler with ratio %s.", resamp_float)
+            return filter.pfb.arb_resampler_ccf(resamp_float, flt_size=arb_interp)
+
+        logger.debug(
+            "Using rational resampler with interp %s / decim %s.",
+            resamp_frac.numerator,
+            resamp_frac.denominator,
+        )
+        return filter.rational_resampler.rational_resampler_ccf(
+            resamp_frac.numerator, resamp_frac.denominator
+        )
+
+    def setup_file_input(self, args):
+        logger.info(
+            "Reading input from file %(filename)s @ %(sample_rate)sHz", vars(args)
+        )
+        req_bw_hz = self.chan_to_bandwidth_hz(args.nchan)
+        if args.sample_rate < req_bw_hz:
+            logger.error(
+                "%s Hz bandwidth is required to support %d 25kHz channels, %s Hz input file is not enough. Please reduce the channel count.",
+                req_bw_hz,
+                args.nchan,
+                args.sample_rate,
+            )
+            sys.exit(1)
+
+        self.file_input = blocks.file_source(
+            gr.sizeof_gr_complex * 1, args.filename, False, 0, 0
+        )
+
+        if args.sample_rate != req_bw_hz:
+            logger.warning(
+                "Resampling input file from %s Hz to %s Hz, supply a file at the proper samplerate (nchans * 25kHz) to eliminate wideband resampling.",
+                args.sample_rate,
+                req_bw_hz,
+            )
+            self.resamp = self.setup_resampler(args.sample_rate, req_bw_hz)
+            self.connect((self.file_input, 0), (self.resamp, 0))
+            return self.resamp
+
+        return self.file_input
+
+    def setup_rtlsdr_input(self, args):
+        if not osmosdr:
+            logger.error("Failed to import module osmosdr, cannot read from RTL SDR")
+            sys.exit(1)
+
+        logger.info("Reading input from RTL SDR Dongle at %.3fMHz", args.freq / 1e6)
+        req_bw_hz = self.chan_to_bandwidth_hz(args.nchan)
+        if req_bw_hz > MAX_RTLSDR_BW_HZ:
+            logger.error(
+                "%s 25kHz channels requires %s Hz of bandwidth which is more than the max supported bandwidth of %s for the RTL SDR dongle. Please reduce the channel count.",
+                args.nchan,
+                req_bw_hz,
+                MAX_RTLSDR_BW_HZ,
+            )
+            sys.exit(1)
+
+        self.rtlsdr_source = osmosdr.source(args="numchan=1 ")
+        rtlsdr_sample_rate_hz = self.find_rtlsdr_sample_rate(
+            self.rtlsdr_source, req_bw_hz
+        )
+
+        if not rtlsdr_sample_rate_hz:
+            logger.error(
+                "Failed to find a supported RTL SDR sample rate to provide at least %s Hz bandwidth.",
+                req_bw_hz,
+            )
+            sys.exit(1)
+
+        self.rtlsdr_source.set_time_unknown_pps(osmosdr.time_spec_t())
+        self.rtlsdr_source.set_sample_rate(rtlsdr_sample_rate_hz)
+        self.rtlsdr_source.set_center_freq(args.freq, 0)
+        self.rtlsdr_source.set_freq_corr(0, 0)
+        self.rtlsdr_source.set_dc_offset_mode(0, 0)
+        self.rtlsdr_source.set_iq_balance_mode(0, 0)
+        self.rtlsdr_source.set_gain_mode(args.rx_agc, 0)
+        # self.rtlsdr_source.set_gain(rx_gain, 0)
+        self.rtlsdr_source.set_if_gain(20, 0)
+        self.rtlsdr_source.set_bb_gain(20, 0)
+        self.rtlsdr_source.set_antenna("", 0)
+        self.rtlsdr_source.set_bandwidth(0, 0)
+
+        if rtlsdr_sample_rate_hz != req_bw_hz:
+            logger.warning(
+                "Resampling input data from %s Hz to %s Hz, supply a proper number of channels to eliminate wideband resampling.",
+                rtlsdr_sample_rate_hz,
+                req_bw_hz,
+            )
+            self.resamp = self.setup_resampler(rtlsdr_sample_rate_hz, req_bw_hz)
+            self.connect((self.rtlsdr_source, 0), (self.resamp, 0))
+            return self.resamp
+
+        return self.rtlsdr_source
+
+    def find_rtlsdr_sample_rate(self, source, bw_hz):
+        for rate_range in self.rtlsdr_source.get_sample_rates():
+            # Commonly these will be equal start/stop values and step=0, so try the range but wrap
+            # up by trying the `stop` value as well, before moving to the next range.
+            rate = rate_range.start()
+            while rate < rate_range.stop():
+                if rate >= bw_hz:
+                    return rate
+                rate += rate_range.step()
+
+            rate = rate_range.stop()
+            if rate >= bw_hz:
+                return rate
+
+        return None
+
+    def chan_to_bandwidth_hz(self, nchans):
+        return nchans * CHANNEL_SPACING_HZ
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Receive and decode FLEX Pager transmissions across a given band."
+    )
+    parser.add_argument("--verbose", "-v", action="store_true", default=False)
+    parser.add_argument(
+        "--log-wb",
+        "-W",
+        action="store_true",
+        default=False,
+        help="log wideband data to a file.",
+    )
+    parser.add_argument(
+        "--log-nb",
+        "-N",
+        action="store_true",
+        default=False,
+        help="log narrow-band baseband channel data to a file.",
+    )
+    parser.add_argument(
+        "--freq",
+        "-f",
+        type=eng_float,
+        default=930.5125e6,
+        help="Center frequency of the input, in Hz. (default=%(default)s)",
+    )
+    parser.add_argument(
+        "--nchan",
+        "-n",
+        type=int,
+        default=40,
+        help="Number of channels to process. (default %(default)s)",
+    )
+
+    subparsers = parser.add_subparsers(dest="input_type")
+
+    file_parser = subparsers.add_parser(
+        "file",
+        description="Read from a given file to get input data for flex pager decoding.",
+        help="Read input data from a file.",
+    )
+
+    file_parser.add_argument(
+        "filename", help="File containing raw complex floating point data to read from."
+    )
+
+    file_parser.add_argument(
+        "sample_rate",
+        type=int,
+        help="The sample rate of the input file.",
+    )
+
+    rtl_parser = subparsers.add_parser(
+        "rtlsdr", help="Read data from an RTLSDR USB dongle."
+    )
+    rtl_parser.add_argument(
+        "--rx-agc",
+        action="store_true",
+        default=True,
+        help="Enable Automatic Gain Control in the RTLSDR dongle.",
+    )
+
+    args = parser.parse_args()
+    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
+
+    if not args.input_type:
+        parser.print_usage()
+        sys.exit(1)
+
+    app = FlexBandApp(args)
+    app.run()

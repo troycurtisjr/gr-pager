@@ -98,9 +98,9 @@ class app_top_block(gr.top_block):
             self.connect((bank, i), pager.flex_demod(
                 queue, freq, options.verbose, options.log))
 
-        if options.log:
-            self.connect((bank, i), blocks.file_sink(
-                gr.sizeof_gr_complex, 'chan_'+'%3.3f' % (freq/1e6)+'.dat'))
+            if options.log:
+                self.connect((bank, i), blocks.file_sink(
+                    gr.sizeof_gr_complex, 'chan_'+'%3.3f' % (freq/1e6)+'.dat'))
 
 
 def get_options():
