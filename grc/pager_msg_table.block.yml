@@ -11,7 +11,7 @@ templates:
     <%
         win = 'self._%s_win'%id
     %>\
-    pager.msg_table(row_id=${row_id}, columns=${columns})
+    pager.msg_table(columns=${columns})
     ${win} = self.${id}
     ${ gui_hint() % win }
 
