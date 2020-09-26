@@ -21,23 +21,21 @@
 # Boston, MA 02110-1301, USA.
 #
 
-import numpy
 from gnuradio import gr, eng_notation
-from PyQt5 import Qt, QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 import pmt
 
+
 class msg_table(gr.sync_block, QtWidgets.QTableWidget):
-    updateTrigger = QtCore.pyqtSignal()
     """
     This is a PyQT-Table. It will be populated by PDU messages. For every new message, it will
     insert a new row. The list of columns are the values to extract and display from the meta-data
     header.
     """
-    def __init__(self, blkname="table", columns=[], ascii_body=True, *args):
-        gr.sync_block.__init__(self,
-            name="blkname",
-            in_sig=[],
-            out_sig=[])
+    updateTrigger = QtCore.pyqtSignal()
+
+    def __init__(self, *args, blkname="table", columns=tuple(), ascii_body=True):
+        gr.sync_block.__init__(self, name="blkname", in_sig=[], out_sig=[])
         QtWidgets.QTableWidget.__init__(self, *args)
         self.message_port_register_in(pmt.intern("pdus"))
         self.set_msg_handler(pmt.intern("pdus"), self.handle_input)
@@ -48,13 +46,13 @@ class msg_table(gr.sync_block, QtWidgets.QTableWidget):
             raise ValueError("At least one column or ascii_body must be specified.")
 
         ## table setup
-        self.column_dict = {} # mapping aid for column indices
+        self.column_dict = {}  # mapping aid for column indices
         if ascii_body:
             self.body_label = "Message Body"
 
         self.columns = columns + [self.body_label]
         # set column headers
-        for idx,column in enumerate(self.columns):
+        for idx, column in enumerate(self.columns):
             item = QtWidgets.QTableWidgetItem(column)
             self.insertColumn(idx)
             self.setHorizontalHeaderItem(idx, item)
@@ -82,8 +80,7 @@ class msg_table(gr.sync_block, QtWidgets.QTableWidget):
             return
 
         meta_dict = pmt.to_python(meta)
-        print(f"Received {meta_dict}")
-        if(not type(meta_dict) == type({})):
+        if not isinstance(meta_dict, dict):
             return
 
         self.setRowCount(self.rowcount + 1)
@@ -92,17 +89,14 @@ class msg_table(gr.sync_block, QtWidgets.QTableWidget):
             if col == self.body_label:
                 msg_pmt = pmt.cdr(pdu)
                 msg_bytes = bytes(pmt.u8vector_elements(msg_pmt))
-                value = msg_bytes.decode('utf8', errors="replace")
+                value = msg_bytes.decode("utf8", errors="replace")
                 display = str(value)
-                print(f"Message value: {value}")
             elif col == "frequency":
                 value = meta_dict.get(col)
                 display = eng_notation.num_to_str(value) + "Hz"
             else:
                 value = meta_dict.get(col)
                 display = str(value)
-
-            print(f"'{col}' '{value}' '{display}'")
 
             tab_item = QtWidgets.QTableWidgetItem(display)
             self.setItem(self.rowcount, idx, tab_item)
