@@ -25,5 +25,6 @@ install(
     pager_slicer_fb.block.yml
     pager_flex_decode.block.yml
     pager_flex_receiver.block.yml
+    pager_msg_table.block.yml
     DESTINATION share/gnuradio/grc/blocks
 )

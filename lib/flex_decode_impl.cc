@@ -84,8 +84,8 @@ int flex_decode_impl::work(int noutput_items,
                 hdr =
                     pmt::dict_add(hdr, key_type, pmt::intern(flex_page_desc[page.type]));
                 hdr = pmt::dict_add(hdr, key_capcode, pmt::from_long(page.capcode));
-                pmt::pmt_t body = pmt::init_s8vector(
-                    page.data_len, reinterpret_cast<const int8_t*>(&page.data[0]));
+                pmt::pmt_t body = pmt::init_u8vector(
+                    page.data_len, reinterpret_cast<const uint8_t*>(&page.data[0]));
                 pmt::pmt_t msg = pmt::cons(hdr, body);
 
                 message_port_pub(d_outport, msg);

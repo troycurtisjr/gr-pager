@@ -39,3 +39,4 @@ except ImportError:
 from .flex_demod import flex_demod
 from .pager_utils import *
 from .flex_receiver import flex_receiver
+from .msg_table import msg_table
