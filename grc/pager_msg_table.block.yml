@@ -21,11 +21,9 @@ templates:
 #     * label (label shown in the GUI)
 #     * dtype (e.g. int, float, complex, byte, short, xxx_vector, ...)
 parameters:
-- id: row_id
-  label: Row ID
-  dtype: string
 - id: columns
   label: List of meta-data columns
+  default: ["capcode", "frequency", "type"]
   dtype: raw
 - id: gui_hint
   label: GUI Hint

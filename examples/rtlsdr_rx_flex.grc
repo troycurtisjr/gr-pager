@@ -367,19 +367,6 @@ blocks:
     coordinate: [912, 852.0]
     rotation: 0
     state: enabled
-- name: blocks_message_debug_0
-  id: blocks_message_debug
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1064, 504.0]
-    rotation: 0
-    state: true
 - name: flex_pager_receiver_0
   id: flex_pager_receiver
   parameters:
@@ -430,6 +417,21 @@ blocks:
     coordinate: [8, 108.0]
     rotation: 0
     state: enabled
+- name: pager_msg_table_0
+  id: pager_msg_table
+  parameters:
+    affinity: ''
+    alias: ''
+    columns: '[''capcode'', ''frequency'', ''type'']'
+    comment: ''
+    gui_hint: 'tabwidget@2: 0, 0, 1, 1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1064, 556.0]
+    rotation: 0
+    state: true
 - name: qtgui_freq_sink_x_0
   id: qtgui_freq_sink_x
   parameters:
@@ -1220,7 +1222,7 @@ blocks:
     label17: Tab 17
     label18: Tab 18
     label19: Tab 19
-    label2: Tab 2
+    label2: Pages
     label3: Tab 3
     label4: Tab 4
     label5: Tab 5
@@ -1228,7 +1230,7 @@ blocks:
     label7: Tab 7
     label8: Tab 8
     label9: Tab 9
-    num_tabs: '2'
+    num_tabs: '3'
   states:
     bus_sink: false
     bus_source: false
@@ -1242,7 +1244,7 @@ connections:
 - [flex_pager_receiver_0, '0', qtgui_freq_sink_x_1, '0']
 - [flex_pager_receiver_0, '1', qtgui_time_sink_x_0, '0']
 - [flex_pager_receiver_0, '2', blocks_char_to_float_0, '0']
-- [flex_pager_receiver_0, pages, blocks_message_debug_0, print]
+- [flex_pager_receiver_0, pages, pager_msg_table_0, pdus]
 - [freq_xlating_fir_filter_xxx_0, '0', flex_pager_receiver_0, '0']
 - [rtlsdr_source_0, '0', freq_xlating_fir_filter_xxx_0, '0']
 - [rtlsdr_source_0, '0', qtgui_freq_sink_x_0, '0']
