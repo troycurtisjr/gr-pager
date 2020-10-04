@@ -422,7 +422,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    columns: '[''capcode'', ''frequency'', ''type'']'
+    columns: '[''rx_time'', ''capcode'', ''freq'', ''type'']'
     comment: ''
     gui_hint: 'tabwidget@2: 0, 0, 1, 1'
   states:

@@ -21,6 +21,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
+from datetime import datetime
 from gnuradio import gr, eng_notation
 from PyQt5 import QtCore, QtWidgets
 import pmt
@@ -91,9 +92,12 @@ class msg_table(gr.sync_block, QtWidgets.QTableWidget):
                 msg_bytes = bytes(pmt.u8vector_elements(msg_pmt))
                 value = msg_bytes.decode("utf8", errors="replace")
                 display = str(value)
-            elif col == "frequency":
+            elif col in ("freq", "frequency"):
                 value = meta_dict.get(col)
                 display = eng_notation.num_to_str(value) + "Hz"
+            elif col == "rx_time":
+                value = meta_dict.get(col)[0]
+                display = str(datetime.fromtimestamp(value))
             else:
                 value = meta_dict.get(col)
                 display = str(value)

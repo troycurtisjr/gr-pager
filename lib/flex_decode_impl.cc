@@ -26,6 +26,7 @@
 #include "flex_modes.h"
 #include <gnuradio/io_signature.h>
 #include <pmt/pmt.h>
+#include <time.h>
 #include <iostream>
 
 namespace gr {
@@ -65,9 +66,12 @@ int flex_decode_impl::work(int noutput_items,
 {
     const int32_t* in = reinterpret_cast<const int32_t*>(input_items[0]);
 
-    pmt::pmt_t key_freq = pmt::intern("frequency");
+    pmt::pmt_t key_freq = pmt::intern("freq");
     pmt::pmt_t key_type = pmt::intern("type");
     pmt::pmt_t key_capcode = pmt::intern("capcode");
+    pmt::pmt_t key_rx_time = pmt::intern("rx_time");
+    const uint64_t curTime = static_cast<uint64_t>(time(nullptr));
+    pmt::pmt_t timeval = pmt::make_tuple(pmt::from_uint64(curTime), pmt::from_double(0));
 
     int i = 0;
     while (i < noutput_items) {
@@ -84,6 +88,7 @@ int flex_decode_impl::work(int noutput_items,
                 hdr =
                     pmt::dict_add(hdr, key_type, pmt::intern(flex_page_desc[page.type]));
                 hdr = pmt::dict_add(hdr, key_capcode, pmt::from_long(page.capcode));
+                hdr = pmt::dict_add(hdr, key_rx_time, timeval);
                 pmt::pmt_t body = pmt::init_u8vector(
                     page.data_len, reinterpret_cast<const uint8_t*>(&page.data[0]));
                 pmt::pmt_t msg = pmt::cons(hdr, body);
