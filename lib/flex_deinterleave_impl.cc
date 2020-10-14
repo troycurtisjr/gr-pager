@@ -86,7 +86,7 @@ int flex_deinterleave_impl::work(int noutput_items,
 
         // Apply BCH 31,21 error correction
         // TODO: mark dataword when codeword fails ECC
-        bch3121(codeword);
+        bch3121(&codeword);
 
         // Reverse bit order
         codeword = reverse_bits32(codeword);

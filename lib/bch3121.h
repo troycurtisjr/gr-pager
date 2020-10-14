@@ -30,7 +30,7 @@ namespace pager {
 
 // Perform BCH (31,21) error correction on supplied data
 // Return number of errors found/corrected (0, 1, or 2)
-uint32_t bch3121(uint32_t& data);
+int32_t bch3121(uint32_t* data);
 
 } /* namespace pager */
 } /* namespace gr */
