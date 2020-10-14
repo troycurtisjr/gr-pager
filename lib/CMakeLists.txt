@@ -30,7 +30,7 @@ list(APPEND pager_sources
   flex_decode_impl.cc
   slicer_fb_impl.cc
   flex_frame.cc
-  bch3221.cc
+  bch3121.cc
   flex_modes.cc
   util.cc
 )
