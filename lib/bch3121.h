@@ -2,14 +2,14 @@
 /*
  * Copyright 2006,2012 Free Software Foundation, Inc.
  *
- * This file is part of GNU Radio
+ * This file is part of gr-pager
  *
- * GNU Radio is free software; you can redistribute it and/or modify
+ * gr-pager is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
  *
- * GNU Radio is distributed in the hope that it will be useful,
+ * gr-pager is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -20,21 +20,19 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#ifndef INCLUDED_PAGER_BCH3121_H
+#define INCLUDED_PAGER_BCH3121_H
 
-#include "bch3221.h"
+#include "util.h"
 
 namespace gr {
 namespace pager {
 
-// Corrects supplied data word according to BCH3221 encoding and
-// returns the number of errors detected/corrected.
-//
-// Not implemented yet
-
-int bch3221(int& data) { return 0; }
+// Perform BCH (31,21) error correction on supplied data
+// Return number of errors found/corrected (0, 1, or 2)
+int32_t bch3121(uint32_t* data);
 
 } /* namespace pager */
 } /* namespace gr */
+
+#endif /* INCLUDED_PAGER_BCH3121_H */

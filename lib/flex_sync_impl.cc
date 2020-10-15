@@ -24,7 +24,7 @@
 #include "config.h"
 #endif
 
-#include "bch3221.h"
+#include "bch3121.h"
 #include "flex_modes.h"
 #include "flex_sync_impl.h"
 #include "util.h"
@@ -303,8 +303,6 @@ int flex_sync_impl::general_work(int noutput_items,
             if (d_index == d_center) {
                 d_fiw = (d_fiw << 1) | (sym > 1);
                 if (++d_count == 48) {
-                    // FIW is accumulated, call BCH to error correct it
-                    bch3221(d_fiw);
                     parse_fiw();
                     enter_sync2();
                 }
