@@ -24,7 +24,7 @@ from gnuradio import analog
 from gnuradio import blocks
 from gnuradio import filter
 from math import pi
-from pager import pager_swig
+from gnuradio.pager import pager_python
 
 
 class flex_demod(gr.hier_block2):

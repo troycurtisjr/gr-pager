@@ -40,7 +40,7 @@ asserts:
   - ${ sample_rate > 16000 }
 
 templates:
-    imports: 'import pager'
+    imports: 'import gnuradio.pager as pager'
     make: "pager.flex_receiver(\n    frequency=${ frequency },\n    sample_rate=${ sample_rate },\n)"
     callbacks:
     - set_frequency(${ frequency })

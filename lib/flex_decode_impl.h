@@ -22,7 +22,7 @@
 #define INCLUDED_PAGER_FLEX_DECODE_IMPL_H
 
 #include "flex_frame.h"
-#include <pager/flex_decode.h>
+#include <gnuradio/pager/flex_decode.h>
 
 namespace gr {
 namespace pager {
