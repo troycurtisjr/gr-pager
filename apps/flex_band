@@ -35,7 +35,7 @@ try:
 except ImportError:
     osmosdr = None
 
-import pager
+import gnuradio.pager as pager
 
 logger = logging.getLogger("flex_band")
 

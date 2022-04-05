@@ -25,7 +25,7 @@
 
 #include <gnuradio/msg_queue.h>
 #include <gnuradio/sync_block.h>
-#include <pager/api.h>
+#include <gnuradio/pager/api.h>
 #include <sstream>
 
 namespace gr {
@@ -38,7 +38,7 @@ class PAGER_API flex_parse : virtual public sync_block
 {
 public:
     // gr::pager::flex_parse::sptr
-    typedef boost::shared_ptr<flex_parse> sptr;
+    typedef std::shared_ptr<flex_parse> sptr;
 
     static sptr make(msg_queue::sptr queue, float freq);
 };

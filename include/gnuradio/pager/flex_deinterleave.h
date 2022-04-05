@@ -24,7 +24,7 @@
 #define INCLUDED_PAGER_FLEX_DEINTERLEAVE_H
 
 #include <gnuradio/sync_decimator.h>
-#include <pager/api.h>
+#include <gnuradio/pager/api.h>
 
 namespace gr {
 namespace pager {
@@ -37,7 +37,7 @@ class PAGER_API flex_deinterleave : virtual public sync_decimator
 {
 public:
     // gr::pager::flex_deinterleave::sptr
-    typedef boost::shared_ptr<flex_deinterleave> sptr;
+    typedef std::shared_ptr<flex_deinterleave> sptr;
 
     /*!
      * \brief Make flex deinterleaver

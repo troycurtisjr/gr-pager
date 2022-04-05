@@ -24,7 +24,7 @@ from gnuradio import analog
 from gnuradio import blocks
 from gnuradio import filter
 from math import pi
-from pager import pager_swig
+from gnuradio.pager import pager_python
 
 
 class flex_demod(gr.hier_block2):
@@ -50,8 +50,8 @@ class flex_demod(gr.hier_block2):
 
         rsamp = filter.rational_resampler_fff(16, 25)
         # DC removal averaging filter constant
-        self.slicer = pager_swig.slicer_fb(5e-6)
-        self.sync = pager_swig.flex_sync()
+        self.slicer = pager_python.slicer_fb(5e-6)
+        self.sync = pager_python.flex_sync()
 
         self.connect(quad, rsamp, self.slicer, self.sync)
 

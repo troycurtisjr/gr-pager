@@ -21,7 +21,7 @@ outputs:
     dtype: byte
 
 templates:
-    imports: import pager
+    imports: import gnuradio.pager as pager
     make: pager.slicer_fb(${alpha})
 
 file_format: 1

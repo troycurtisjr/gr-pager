@@ -15,7 +15,7 @@ outputs:
     dtype: int
 
 templates:
-    imports: import pager
+    imports: import gnuradio.pager as pager
     make: pager.flex_deinterleave()
 
 file_format: 1

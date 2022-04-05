@@ -17,7 +17,7 @@ Getting Started
 ------------------
 
 * Requirements
-    * GNU Radio 3.8
+    * GNU Radio 3.10/3.11
 
 The high-level steps are to clone this git repo, compile the module, and install.
 

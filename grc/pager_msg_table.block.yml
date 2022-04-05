@@ -4,7 +4,7 @@ category: '[Pager]'
 
 templates:
   imports: |-
-    import pager
+    import gnuradio.pager as pager
     import sip
 
   make: |-
