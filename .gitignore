@@ -2,3 +2,8 @@ build/
 .clangd/
 .clang_complete
 /compile_commands.json
+*~
+*.pyc
+*.pyo
+build*/
+examples/grc/*.py
