@@ -24,7 +24,7 @@
 #define INCLUDED_PAGER_SLICER_FB_H
 
 #include <gnuradio/sync_block.h>
-#include <pager/api.h>
+#include <gnuradio/pager/api.h>
 
 namespace gr {
 namespace pager {
@@ -37,7 +37,7 @@ class PAGER_API slicer_fb : virtual public sync_block
 {
 public:
     // gr::pager::slicer_fb::sptr
-    typedef boost::shared_ptr<slicer_fb> sptr;
+    typedef std::shared_ptr<slicer_fb> sptr;
 
     /*!
      * \brief Make a pager slicer

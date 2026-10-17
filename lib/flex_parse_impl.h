@@ -27,7 +27,7 @@
 #include "flex_modes.h"
 #include <gnuradio/msg_queue.h>
 #include <gnuradio/sync_block.h>
-#include <pager/flex_parse.h>
+#include <gnuradio/pager/flex_parse.h>
 #include <sstream>
 
 namespace gr {

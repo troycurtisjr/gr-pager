@@ -29,7 +29,7 @@ from gnuradio import blocks
 from gnuradio import filter
 from gnuradio.eng_option import eng_option
 from optparse import OptionParser
-import pager
+import gnuradio.pager as pager
 import sys
 
 
@@ -95,7 +95,7 @@ class app_top_block(gr.top_block):
                                       1.0,
                                       1.0/self.nchan*0.4,
                                       1.0/self.nchan*0.1,
-                                      filter.firdes.WIN_HANN)
+                                      filter.window.WIN_HANN)
 
         if options.verbose:
             print("Channel filter has %d taps" % len(taps))

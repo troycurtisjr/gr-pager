@@ -22,7 +22,7 @@
 #define INCLUDED_PAGER_FLEX_DECODE_H
 
 #include <gnuradio/sync_block.h>
-#include <pager/api.h>
+#include <gnuradio/pager/api.h>
 
 namespace gr {
 namespace pager {
@@ -36,7 +36,7 @@ class PAGER_API flex_decode : virtual public gr::sync_block
 {
 public:
     // gr::pager::flex_decode::sptr
-    typedef boost::shared_ptr<flex_decode> sptr;
+    typedef std::shared_ptr<flex_decode> sptr;
 
     /*!
      * \brief Return a shared_ptr to a new instance of pager::flex_decode.

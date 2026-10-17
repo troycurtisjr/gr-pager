@@ -27,7 +27,7 @@ from gnuradio import gr
 from gnuradio import analog
 from gnuradio import filter
 
-import pager
+import gnuradio.pager as pager
 
 class flex_receiver(gr.hier_block2):
     """
@@ -110,7 +110,7 @@ class flex_receiver(gr.hier_block2):
             self.passband/2,
             self.transition_band,
             attenuation_dB=self.atten,
-            window=filter.firdes.WIN_BLACKMAN_hARRIS)
+            window=filter.window.WIN_BLACKMAN_hARRIS)
 
     def get_frequency(self):
         return self.frequency

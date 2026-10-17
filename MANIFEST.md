@@ -11,9 +11,10 @@ author:
 copyright_owner:
   - Free Software Foundation
 dependencies:
-  - gnuradio (>= 3.8.0)
+  - gnuradio (>= 3.10.0)
 gr_supported_version:
-  - v3.8
+  - v3.10
+  - v3.11
 repo: https://github.com/troycurtisjr/gr-pager
 website: https://github.com/troycurtisjr/gr-pager
 license: GPLv3

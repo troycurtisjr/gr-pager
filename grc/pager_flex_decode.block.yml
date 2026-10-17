@@ -3,7 +3,7 @@ label: Flex Decoder
 category: '[Pager]'
 
 templates:
-  imports: import pager
+  imports: import gnuradio.pager as pager
   make: pager.flex_decode(${freq})
   callbacks:
   - set_freq(${freq})

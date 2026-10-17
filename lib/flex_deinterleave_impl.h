@@ -24,7 +24,7 @@
 #define INCLUDED_PAGER_FLEX_DEINTERLEAVE_IMPL_H
 
 #include <gnuradio/sync_decimator.h>
-#include <pager/flex_deinterleave.h>
+#include <gnuradio/pager/flex_deinterleave.h>
 
 namespace gr {
 namespace pager {
